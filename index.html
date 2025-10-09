@@ -10,36 +10,100 @@
 <!-- GSAP + ScrollTrigger -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<!-- Swiper for showcase slider -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 
 <style>
 :root{
-  --accent:#ff2a2a; --accent-2:#ff7b7b; --bg:#000; --muted:#9b9b9b; --card:#121212;
-  --glass: rgba(255,255,255,0.04);
+  /* --- Default Night/Dark Theme --- */
+  --accent:#ff2a2a;
+  --accent-2:#ff7b7b;
+  --accent-rgb: 255, 42, 42;
+  --bg:#000000;
+  --text-main: #ffffff;
+  --text-muted:#9b9b9b;
+  --card:#121212;
+  --glass-bg: rgba(18, 18, 18, 0.5);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow-color: rgba(0,0,0,0.6);
+  --spotlight-color: rgba(255, 42, 42, 0.15);
 }
+
+/* --- Invert Theme --- */
+body.theme-invert {
+  --bg: #ffffff;
+  --text-main: #000000;
+  --text-muted: #6a6a6a;
+  --accent: #0066ff;
+  --accent-2: #6ab0ff;
+  --accent-rgb: 0, 102, 255;
+  --card: #f0f0f0;
+  --glass-bg: rgba(240, 240, 240, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0,0,0,0.1);
+  --spotlight-color: rgba(0, 102, 255, 0.15);
+}
+
+/* --- Day Theme --- */
+body.theme-day {
+  --bg: #f0f2f5;
+  --text-main: #1c1e21;
+  --text-muted: #606770;
+  --accent: #1877f2;
+  --accent-2: #6aa4f7;
+  --accent-rgb: 24, 119, 242;
+  --card: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --shadow-color: rgba(0,0,0,0.1);
+  --spotlight-color: rgba(24, 119, 242, 0.15);
+}
+
+/* --- Sunset Theme --- */
+body.theme-sunset {
+  --bg: #1a0c1a;
+  --text-main: #fde8d7;
+  --text-muted: #c7b8b1;
+  --accent: #f39c12;
+  --accent-2: #f8c471;
+  --accent-rgb: 243, 156, 18;
+  --card: #2c1c2b;
+  --glass-bg: rgba(44, 28, 43, 0.5);
+  --glass-border: rgba(253, 232, 215, 0.1);
+  --shadow-color: rgba(0,0,0,0.5);
+  --spotlight-color: rgba(243, 156, 18, 0.15);
+}
+
+
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+html,body{height:100%; width: 100%; overflow-x: hidden;}
 body{
-  font-family:"Poppins",sans-serif;background:var(--bg);color:#fff;overflow-y:auto;scroll-behavior:smooth;
-  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  font-family:"Poppins",sans-serif;
+  background:var(--bg); color:var(--text-main);
+  overflow-y:auto; scroll-behavior:smooth;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  transition: background 0.5s ease, color 0.5s ease;
 }
 
 /* ---------- CANVAS LAYERS ---------- */
-canvas.particles, canvas.cursorTrail { position:fixed; left:0; top:0; width:100vw; height:100vh; pointer-events:none; z-index:0; }
+canvas{ position:fixed; left:0; top:0; width:100vw; height:100vh; pointer-events:none; }
+canvas#bgBlobsCanvas { z-index: 0; }
+canvas#constellationCanvas { z-index: 1; }
+/* canvas#floatingDesignsCanvas { z-index: 2; } */ /* Replaced with DOM version */
+canvas#nameCanvas { z-index: 5; }
+canvas#cursorTrailCanvas { z-index: 10; }
 
 /* ---------- BACKGROUND THUMBS (interactive) ---------- */
-.bg-designs{ position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1; overflow:hidden;
-  filter: blur(3.5px) brightness(0.33); transition:opacity .6s ease, filter .6s ease; }
+.bg-designs{ position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:2; overflow:hidden;
+  filter: blur(3.5px) brightness(0.33); transition:opacity .6s ease, filter .6s ease; pointer-events: none; }
 .bg-designs img{ position:absolute; object-fit:cover; border-radius:8px; opacity:0; animation:fadeInOut 8s ease-in-out infinite;
   will-change:transform,opacity; transition:transform .38s cubic-bezier(.22,.9,.27,1); }
 @keyframes fadeInOut{0%,100%{opacity:0}30%,70%{opacity:0.34}}
 
+
 /* ---------- GRADIENT OVERLAY (animated) ---------- */
 .gradient-overlay{
-  position:fixed; inset:0; z-index:2; pointer-events:none;
-  background: linear-gradient(120deg, rgba(255,42,42,0.06), rgba(120,40,200,0.05), rgba(0,120,255,0.03));
+  position:fixed; inset:0; z-index:3; pointer-events:none;
+  background: linear-gradient(120deg, rgba(var(--accent-rgb), 0.08), rgba(120,40,200,0.05), rgba(0,120,255,0.03));
   background-size: 600% 600%;
   mix-blend-mode: screen;
   animation: gradientMove 16s linear infinite;
@@ -47,111 +111,199 @@ canvas.particles, canvas.cursorTrail { position:fixed; left:0; top:0; width:100v
 @keyframes gradientMove{ 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
 
 /* ---------- HERO --------- */
-.hero{ position:relative; z-index:3; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:48px 20px; text-align:center; }
+.hero{ position:relative; z-index:4; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:48px 20px; text-align:center; }
 .hero-inner{ max-width:1100px; width:100%; display:flex; flex-direction:column; align-items:center; gap:12px; }
 
 /* profile */
-.profile-pic{ width:170px;height:170px;border-radius:50%;object-fit:cover;border:3px solid var(--accent); animation:floatImg 4s ease-in-out infinite; box-shadow:0 12px 40px rgba(255,42,42,0.08); }
+.profile-pic{ width:170px;height:170px;border-radius:50%;object-fit:cover;border:3px solid var(--accent); animation:floatImg 4s ease-in-out infinite; box-shadow:0 12px 40px rgba(var(--accent-rgb), 0.15); transition: border-color 0.3s ease; }
 @keyframes floatImg{ 0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)} }
 
-.name-wrap{ position:relative; display:inline-block; margin-top:8px; }
+.name-wrap{ position:relative; display:flex; justify-content:center; align-items:center; min-height: 80px; width: 100%;}
 h1.main-name{
-  font-size:3.1rem; font-weight:800; letter-spacing:0.6px; margin:0;
-  background:linear-gradient(90deg,var(--accent),#ff9c9c); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  filter: drop-shadow(0 6px 22px rgba(255,42,42,0.08));
+  font-size: clamp(2rem, 6vw, 3.1rem); font-weight:800; letter-spacing:0.6px; margin:0;
+  color: transparent; /* Changed from visibility:hidden to keep layout */
 }
-.name-reflection{ transform:translateY(8px) scaleY(-1); opacity:0.06; filter: blur(2px); display:block; margin-top:10px; }
+/* The h1 is now rendered on a canvas, but this is kept for layout and fallback */
 
 /* ticker / typing */
-.ticker{ color:var(--muted); font-weight:600; margin-top:8px; min-height:28px; }
+.ticker{ color:var(--text-muted); font-weight:600; margin-top:8px; min-height:28px; transition: color 0.3s ease;}
 
 /* bio + skills */
-.bio{ color:#d7d7d7; max-width:780px; margin-top:12px; line-height:1.6; font-size:1rem; }
+.bio{ color:#d7d7d7; max-width:780px; margin-top:12px; line-height:1.6; font-size:1rem; color: var(--text-main); opacity: 0.9; }
+.bio-highlight { color: var(--accent); font-weight: 600; transition: color 0.3s ease; }
+
 .skills{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
-.skill{ padding:8px 14px; border-radius:20px; font-weight:700; background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff; box-shadow:0 8px 24px rgba(255,42,42,0.06); transition:transform .18s }
+.skill{ padding:8px 14px; border-radius:20px; font-weight:700; background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff; box-shadow:0 8px 24px rgba(var(--accent-rgb), 0.1); transition:transform .18s, background 0.3s ease; }
 .skill:hover{ transform:translateY(-4px); }
 
 /* hero CTA - magnetic buttons */
 .hero-cta{ display:flex; gap:14px; margin-top:18px; justify-content:center; flex-wrap:wrap; }
-.btn{ padding:12px 28px; border-radius:28px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:#fff; font-weight:700; cursor:pointer; transition:transform .12s, box-shadow .12s; position:relative; overflow:hidden; }
-.btn.primary{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); box-shadow:0 10px 30px rgba(255,42,42,0.08); border:0; }
+.btn{ padding:12px 28px; border-radius:28px; border:1px solid var(--glass-border); background:transparent; color: var(--text-main); font-weight:700; cursor:pointer; transition:transform .12s, box-shadow .12s, background 0.3s ease, color 0.3s ease, border-color 0.3s ease; position:relative; overflow:hidden; }
+.btn.primary{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); box-shadow:0 10px 30px rgba(var(--accent-rgb), 0.2); border:0; color: #fff;}
 .btn:hover{ transform:translateY(-6px) }
 
 /* floating icons */
 .icons{ display:flex; gap:16px; margin-top:14px; justify-content:center; font-size:20px; }
-.icons i{ color:var(--accent); transform-origin:center; animation:floatIcon 4s ease-in-out infinite; transition:transform .18s }
+.icons i{ color:var(--accent); transform-origin:center; animation:floatIcon 4s ease-in-out infinite; transition:transform .18s, color 0.3s ease; }
 .icons i:nth-child(odd){ animation-duration:4.6s }
 @keyframes floatIcon{ 0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)} }
 
-/* ---------- CONTENT SECTIONS ---------- */
+/* ---------- CONTENT SECTIONS (Glassmorphism) ---------- */
 .content-wrap{ position:relative; z-index:3; padding:40px 20px 180px; max-width:1400px; margin:0 auto }
-.section{ margin-top:40px; padding:26px; border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 10px 40px rgba(0,0,0,0.6) }
-.section h2{ font-size:1.4rem; margin-bottom:10px }
-.section p{ color:var(--muted); line-height:1.6 }
+.section{
+  margin-top:40px; padding:26px; border-radius:14px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow:0 10px 40px var(--shadow-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.5s ease, border 0.5s ease, box-shadow 0.5s ease;
+  will-change: transform, opacity; /* For section disintegration animation */
+}
+
+/* Text shimmer effect */
+.section h2{
+  font-size:1.6rem; margin-bottom:12px; position:relative; display: inline-block;
+}
+.section h2::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -10%;
+  width: 120%; height: 100%;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  transform: translateX(-100%);
+  transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.section h2.in-view::after {
+  transform: translateX(100%);
+}
+.section p{ color:var(--text-muted); line-height:1.6 }
 
 /* experiences grid */
 .experiences{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; margin-top:12px }
-.exp-card{ background:var(--card); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); transition:transform .12s, box-shadow .12s }
-.exp-card:hover{ transform:translateY(-8px); box-shadow:0 18px 40px rgba(0,0,0,0.6) }
+.exp-card{ background:var(--card); padding:16px; border-radius:12px; border:1px solid var(--glass-border); transition:transform .12s, box-shadow .12s, background 0.3s ease; color: var(--text-main); }
+.exp-card:hover{ transform:translateY(-8px); box-shadow:0 18px 40px var(--shadow-color); }
 .exp-card h3{ margin-bottom:6px }
-.exp-card small{ color:var(--muted) }
+.exp-card small{ color:var(--text-muted) }
 
 /* timeline */
 .timeline{ margin-top:18px; position:relative; display:flex; flex-direction:column; gap:12px }
 .timeline .item{ display:flex; gap:12px; align-items:flex-start; }
-.timeline .dot{ width:12px;height:12px;border-radius:50%;background:var(--accent); margin-top:6px; flex-shrink:0 }
+.timeline .dot{ width:12px;height:12px;border-radius:50%;background:var(--accent); margin-top:6px; flex-shrink:0; transition: background-color 0.3s ease; }
 
 /* tools / badges */
 .tools{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px }
-.tool{ padding:8px 12px; border-radius:10px; background:var(--glass); color:var(--muted); font-weight:700 }
+.tool{ padding:8px 12px; border-radius:10px; background: var(--glass-bg); border: 1px solid var(--glass-border); color:var(--text-muted); font-weight:700 }
 
-/* achievements */
 .achievements{ display:flex; gap:12px; flex-wrap:wrap; margin-top:12px }
-.badge{ padding:10px 14px; border-radius:10px; background:#0f0f0f; border:1px solid rgba(255,255,255,0.03); color:var(--muted); font-weight:700 }
+.badge{ padding:10px 14px; border-radius:10px; background:var(--card); border:1px solid var(--glass-border); color:var(--text-muted); font-weight:700 }
 
 /* gallery & card */
 .gallery{ column-count:5; column-gap:15px; padding:40px 0; background:transparent; max-width:1800px; margin:40px auto 140px auto; opacity:0; transform:translateY(40px); transition:opacity .9s ease, transform .9s ease }
 .gallery.visible{ opacity:1; transform:translateY(0) }
-.card{ break-inside:avoid; margin-bottom:15px; border-radius:16px; overflow:hidden; background:#111; border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 28px rgba(0,0,0,0.6); transition:transform .28s }
+.card{ break-inside:avoid; margin-bottom:15px; border-radius:16px; overflow:hidden; background:var(--card); border:1px solid var(--glass-border); box-shadow:0 8px 28px var(--shadow-color); transition:transform .28s }
 .card img{ width:100%; display:block; height:auto; transition:transform .45s, opacity .35s }
 .card:hover{ transform:scale(1.03) }
 .card img:hover{ transform:scale(1.03); opacity:.96 }
 
-/* Swiper showcase */
-.swiper{ width:100%; padding:24px 0 }
-.swiper-slide{ display:flex; align-items:center; justify-content:center; border-radius:12px; overflow:hidden; background:#0b0b0b; box-shadow:0 12px 40px rgba(0,0,0,0.6) }
+/* ---------- THEME SELECTOR ---------- */
+.theme-selector {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+.theme-button {
+  width: 50px;
+  height: 50px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, background-color 0.3s ease;
+}
+.theme-button:hover {
+  transform: scale(1.1);
+}
+.theme-options {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  background: var(--card);
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  transform: translateY(10px) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.theme-selector.open .theme-options {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+.theme-option {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.theme-option.invert-icon i { color: #000; }
+.theme-option:hover {
+  transform: scale(1.15);
+}
 
 /* responsive */
-@media (max-width:1000px){ .gallery{ column-count:3 } .main-name{ font-size:2.2rem } }
+@media (max-width:1000px){ .gallery{ column-count:3 } }
 @media (max-width:700px){ .gallery{ column-count:2 } .profile-pic{ width:130px;height:130px } }
-@media (max-width:420px){ .gallery{ column-count:1 } .main-name{ font-size:1.6rem } .bio{ font-size:0.95rem } }
+@media (max-width:420px){ .gallery{ column-count:1 } .bio{ font-size:0.95rem } }
 </style>
 </head>
-<body>
+<body data-theme="night">
 
-<!-- CANVASES -->
-<canvas id="bgParticles" class="particles"></canvas>
-<canvas id="nameParticles" class="particles"></canvas>
-<canvas id="cursorTrail" class="cursorTrail"></canvas>
+<!-- Hidden Spotify Player for background music -->
+<!-- Note: Autoplay is subject to browser policies and may not work without user interaction first. -->
+<iframe style="position: absolute; left: -9999px; width: 300px; height: 80px;" src="https://open.spotify.com/embed/track/734WuFbTDxTPMU1lBP6e0M?utm_source=generator" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
 
-<!-- animated gradient overlay -->
-<div class="gradient-overlay" aria-hidden="true"></div>
+<!-- CANVASES FOR MAGICAL EFFECTS -->
+<canvas id="bgBlobsCanvas"></canvas>
+<canvas id="constellationCanvas"></canvas>
+<canvas id="cursorTrailCanvas"></canvas>
+<canvas id="nameCanvas"></canvas>
 
 <!-- BG THUMBNAILS -->
 <div class="bg-designs" id="bgDesigns" aria-hidden="true"></div>
 
+<!-- animated gradient overlay -->
+<div class="gradient-overlay" aria-hidden="true"></div>
+
 <!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-inner">
-    <img id="profilePic" class="profile-pic" src="your-image.jpg" alt="Sehan Karunarathne">
-    <div class="name-wrap" aria-hidden="false">
+    <img id="profilePic" class="profile-pic" src="https://i.ibb.co/L5RcxzP/sehan-propic.jpg" alt="Sehan Karunarathne">
+    <div class="name-wrap" id="nameWrap">
       <h1 class="main-name" id="mainName">Sehan Karunarathne</h1>
-      <span class="name-reflection" aria-hidden="true">Sehan Karunarathne</span>
     </div>
 
     <div class="ticker" id="roleTicker" aria-live="polite"></div>
 
-    <p class="bio">I craft cinematic visuals and production-ready design systems — from multi-week Photoshop productions and motion promos to UI/UX and AI-accelerated ideation. Focus: Photoshop, Premiere Pro, After Effects & modern AI design stacks.</p>
+    <p class="bio" id="bioText">I craft cinematic visuals and production-ready design systems — from multi-week <span class="bio-highlight">Photoshop</span> productions and motion promos to <span class="bio-highlight">UI/UX</span> and <span class="bio-highlight">AI-accelerated</span> ideation. Focus: <span class="bio-highlight">Photoshop</span>, <span class="bio-highlight">Premiere Pro</span>, <span class="bio-highlight">After Effects</span> & modern <span class="bio-highlight">AI design stacks</span>.</p>
 
     <div class="skills" aria-hidden="true">
       <div class="skill">Photoshop</div>
@@ -172,7 +324,6 @@ h1.main-name{
     <div class="hero-cta">
       <button class="btn primary" id="btnDetails">View Details</button>
       <button class="btn" id="btnWork">View Work</button>
-      <button class="btn" id="audioToggle" title="Toggle ambient sound"><i class="fa-solid fa-volume-high"></i></button>
     </div>
   </div>
 </section>
@@ -201,32 +352,32 @@ h1.main-name{
       <div class="exp-card">
         <h3>Graphic Designer — eSoft (Negombo)</h3>
         <small>Full-time / Project-based</small>
-        <p style="margin-top:8px;color:var(--muted)">Conducted massive Photoshop workshops & production builds for campus promos. Managed branding and motion for multi-week campaigns.</p>
+        <p style="margin-top:8px;">Conducted massive Photoshop workshops & production builds for campus promos. Managed branding and motion for multi-week campaigns.</p>
       </div>
 
       <div class="exp-card">
         <h3>Print Vision — Freelance</h3>
         <small>Print & Large-format Design</small>
-        <p style="margin-top:8px;color:var(--muted)">Designs for print media, billboards, and retail collaterals with color-managed production workflows.</p>
+        <p style="margin-top:8px;">Designs for print media, billboards, and retail collaterals with color-managed production workflows.</p>
       </div>
 
       <div class="exp-card">
         <h3>Small Enterprise Development — Training</h3>
         <small>Design Courses</small>
-        <p style="margin-top:8px;color:var(--muted)">Designed and delivered practical design courses focused on branding & digital presence for small enterprises.</p>
+        <p style="margin-top:8px;">Designed and delivered practical design courses focused on branding & digital presence for small enterprises.</p>
       </div>
 
       <div class="exp-card">
         <h3>DreamStay / NSIS / Knowledge Academy</h3>
         <small>Branding & Visual Systems</small>
-        <p style="margin-top:8px;color:var(--muted)">Brand identity, social assets, and motion intros for startups and institutes.</p>
+        <p style="margin-top:8px;">Brand identity, social assets, and motion intros for startups and institutes.</p>
       </div>
     </div>
 
     <div class="timeline" style="margin-top:16px">
-      <div class="item"><div class="dot"></div><div><strong>Massive Photoshop workshops</strong><div style="color:var(--muted)">eSoft Negombo — multi-week production builds</div></div></div>
-      <div class="item"><div class="dot"></div><div><strong>Design courses created</strong><div style="color:var(--muted)">Small Enterprise Development Division</div></div></div>
-      <div class="item"><div class="dot"></div><div><strong>Freelance & collaborations</strong><div style="color:var(--muted)">Print Vision, DreamStay, NSIS, Knowledge Academy</div></div></div>
+      <div class="item"><div class="dot"></div><div><strong>Massive Photoshop workshops</strong><div style="color:var(--text-muted)">eSoft Negombo — multi-week production builds</div></div></div>
+      <div class="item"><div class="dot"></div><div><strong>Design courses created</strong><div style="color:var(--text-muted)">Small Enterprise Development Division</div></div></div>
+      <div class="item"><div class="dot"></div><div><strong>Freelance & collaborations</strong><div style="color:var(--text-muted)">Print Vision, DreamStay, NSIS, Knowledge Academy</div></div></div>
     </div>
 
     <div class="achievements" style="margin-top:14px">
@@ -238,34 +389,31 @@ h1.main-name{
 
   <div class="section" id="gallerySection">
     <h2>Design Gallery</h2>
-    <p style="color:var(--muted)">Click any design to open high-res. Images lazy-load for faster initial load.</p>
+    <p>Click any design to open high-res. Images lazy-load for faster initial load.</p>
   </div>
 
   <section class="gallery" id="gallery"></section>
 
-  <div class="section" id="showcase" style="margin-top:34px;">
-    <h2>Highlighted Showcase</h2>
-    <div class="swiper mySwiper">
-      <div class="swiper-wrapper" id="swiperWrapper">
-        <!-- slides inserted by JS -->
-      </div>
-      <div class="swiper-pagination"></div>
-      <div class="swiper-button-next"></div>
-      <div class="swiper-button-prev"></div>
-    </div>
-  </div>
-
 </div>
 
-<!-- optional ambient audio (user toggle) -->
-<audio id="ambientAudio" loop src="ambient-synth.mp3" crossorigin="anonymous"></audio>
+<!-- Floating Theme Selector -->
+<div id="themeSelector" class="theme-selector">
+  <div class="theme-button" id="themeButton" title="Change Theme">
+    <i class="fa-solid fa-palette"></i>
+  </div>
+  <div class="theme-options" id="themeOptions">
+    <!-- Options are added by JavaScript -->
+  </div>
+</div>
 
 <script>
-/* ===========================
-   FILE LIST (replace with your files)
-   =========================== */
-const files = [
-  "Design (1).jpg","Design (1).webp","Design (2).jpg","Design (3).jpg","Design (4).jpg","Design (5).jpg",
+document.addEventListener('DOMContentLoaded', () => {
+
+/* =======================================
+    1. SETUP & CONFIG
+    ======================================= */
+const designImageFiles = [
+"Design (1).jpg","Design (1).webp","Design (2).jpg","Design (3).jpg","Design (4).jpg","Design (5).jpg",
   "Design (6).png","Design (7).png","Design (8).png","Design (9).png","Design (10).jpg","Design (11).jpg",
   "Design (12).jpg","Design (12).png","Design (13).png","Design (14).png","Design (15).png","Design (16).png",
   "Design (17).jpg","Design (18).png","Design (19).png","Design (20).png","Design (21).png","Design (22).png",
@@ -276,20 +424,312 @@ const files = [
   "Design (47).png","Design (48).png","Design (49).png","Design (50).png","Design (51).png","Design (52).png",
   "Design (53).png","Design (54).png"
 ];
+const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2, down: false };
+window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+window.addEventListener('mousedown', () => mouse.down = true);
+window.addEventListener('mouseup', () => mouse.down = false);
+window.addEventListener('mouseleave', ()=>{ mouse.x = -9999; mouse.y = -9999; });
 
-/* ============================
-   BACKGROUND THUMBNAILS (random scatter)
-   ============================ */
+
+// Canvas setup
+const canvases = {};
+['bgBlobsCanvas', 'constellationCanvas', 'cursorTrailCanvas', 'nameCanvas'].forEach(id => {
+    const canvas = document.getElementById(id);
+    canvases[id] = {
+        canvas: canvas,
+        ctx: canvas.getContext('2d'),
+        w: 0, h: 0
+    };
+});
+
+function resizeCanvases() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    for (const key in canvases) {
+        canvases[key].w = canvases[key].canvas.width = w;
+        canvases[key].h = canvases[key].canvas.height = h;
+    }
+    // Re-initialize effects that depend on size
+    if (nameParticleEffect) nameParticleEffect.resize();
+}
+window.addEventListener('resize', resizeCanvases, false);
+
+
+/* =======================================
+    2. ADVANCED FEATURE: TIME-OF-DAY & COLOR THEMES
+    ======================================= */
+const themeSelector = document.getElementById('themeSelector');
+const themeButton = document.getElementById('themeButton');
+const themeOptionsContainer = document.getElementById('themeOptions');
+const body = document.body;
+
+const themes = [
+    { name: 'Night', id: 'night', accent: '#ff2a2a' },
+    { name: 'Invert', id: 'invert', accent: '#0066ff', icon: 'fa-solid fa-circle-half-stroke' },
+    { name: 'Day', id: 'day', accent: '#1877f2' },
+    { name: 'Sunset', id: 'sunset', accent: '#f39c12' },
+    { name: 'Ocean', id: 'ocean', accent: '#00aeff' },
+    { name: 'Forest', id: 'forest', accent: '#26de81' },
+];
+
+function applyTheme(themeId) {
+    body.classList.remove('theme-invert', 'theme-day', 'theme-sunset');
+    if (themeId === 'invert') body.classList.add('theme-invert');
+    else if (themeId === 'day') body.classList.add('theme-day');
+    else if (themeId === 'sunset') body.classList.add('theme-sunset');
+    
+    // Set --accent for non-class based themes
+    const selectedTheme = themes.find(t => t.id === themeId) || themes[0];
+    if (!['invert', 'day', 'sunset', 'night'].includes(themeId)) {
+        document.documentElement.style.setProperty('--accent', selectedTheme.accent);
+        const rgb = selectedTheme.accent.match(/\w\w/g).map(x => parseInt(x, 16));
+        document.documentElement.style.setProperty('--accent-rgb', rgb.join(', '));
+    } else {
+         // Reset to CSS variables for class-based themes
+        document.documentElement.style.setProperty('--accent', '');
+        document.documentElement.style.setProperty('--accent-rgb', '');
+    }
+}
+
+function applyTimeBasedTheme() {
+    try {
+        const now = new Date();
+        const srilankaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Colombo' }));
+        const hour = srilankaTime.getHours();
+
+        if (hour >= 6 && hour < 17) {
+            applyTheme('day');
+        } else if (hour >= 17 && hour < 19) {
+            applyTheme('sunset');
+        } else {
+            applyTheme('night');
+        }
+    } catch(e) {
+        console.warn("Could not set time-based theme. Defaulting to night.", e);
+        applyTheme('night');
+    }
+}
+
+themes.forEach(theme => {
+    const option = document.createElement('div');
+    option.className = 'theme-option';
+    option.style.backgroundColor = theme.accent;
+    option.title = theme.name;
+    if (theme.icon) {
+        option.classList.add('invert-icon');
+        option.innerHTML = `<i class="${theme.icon}"></i>`;
+    }
+    option.addEventListener('click', () => {
+        applyTheme(theme.id);
+        themeSelector.classList.remove('open');
+    });
+    themeOptionsContainer.appendChild(option);
+});
+
+themeButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    themeSelector.classList.toggle('open');
+});
+
+document.addEventListener('click', (e) => {
+    if (!themeSelector.contains(e.target)) {
+        themeSelector.classList.remove('open');
+    }
+});
+
+
+/* =======================================
+    3. NEW FEATURE: CURSOR PARTICLE TRAIL
+    ======================================= */
+const cursorParticles = [];
+
+class CursorParticle {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.size = Math.random() * 4 + 1;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.vy = (Math.random() - 0.5) * 2;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.02 + 0.015;
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.alpha -= this.decay;
+        this.size *= 0.97;
+    }
+
+    draw(ctx) {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    }
+}
+
+function addCursorParticles() {
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const particleCount = 2;
+    for (let i = 0; i < particleCount; i++) {
+        cursorParticles.push(new CursorParticle(mouse.x, mouse.y, accentColor));
+    }
+}
+
+// Add listener to create particles on move
+window.addEventListener('mousemove', addCursorParticles);
+
+function drawCursorTrail() {
+    const { ctx, w, h } = canvases.cursorTrailCanvas;
+    ctx.clearRect(0, 0, w, h);
+
+    for (let i = cursorParticles.length - 1; i >= 0; i--) {
+        const p = cursorParticles[i];
+        p.update();
+        p.draw(ctx);
+        if (p.alpha <= 0 || p.size <= 0.2) {
+            cursorParticles.splice(i, 1);
+        }
+    }
+}
+
+
+/* =======================================
+    4. ADVANCED FEATURE: MORPHING BLOBS BG
+    ======================================= */
+class Blob {
+    constructor(ctx) {
+        this.ctx = ctx;
+        this.x = Math.random() * ctx.canvas.width;
+        this.y = Math.random() * ctx.canvas.height;
+        this.r = Math.random() * 80 + 100;
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vy = (Math.random() - 0.5) * 1.5;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x > this.ctx.canvas.width + this.r) this.x = -this.r;
+        if (this.x < -this.r) this.x = this.ctx.canvas.width + this.r;
+        if (this.y > this.ctx.canvas.height + this.r) this.y = -this.r;
+        if (this.y < -this.r) this.y = this.ctx.canvas.height + this.r;
+    }
+}
+const blobs = [];
+function initBlobs() {
+    const { ctx } = canvases.bgBlobsCanvas;
+    blobs.length = 0;
+    const numBlobs = Math.floor(Math.min(canvases.bgBlobsCanvas.w, canvases.bgBlobsCanvas.h) / 200);
+    for (let i = 0; i < Math.max(3, numBlobs); i++) {
+        blobs.push(new Blob(ctx));
+    }
+}
+
+function drawBlobs() {
+    const { ctx, w, h } = canvases.bgBlobsCanvas;
+    ctx.clearRect(0, 0, w, h);
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    ctx.fillStyle = accentColor;
+    ctx.globalAlpha = 0.1;
+    ctx.globalCompositeOperation = 'lighter';
+    
+    blobs.forEach(blob => {
+        blob.update();
+        ctx.beginPath();
+        const g = ctx.createRadialGradient(blob.x, blob.y, blob.r * 0.7, blob.x, blob.y, blob.r);
+        g.addColorStop(0, accentColor);
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g;
+        ctx.arc(blob.x, blob.y, blob.r, 0, Math.PI * 2);
+        ctx.fill();
+    });
+}
+
+
+/* =======================================
+    5. ADVANCED FEATURE: REACTIVE CONSTELLATION
+    ======================================= */
+const particles = [];
+function initConstellation() {
+    const { w, h } = canvases.constellationCanvas;
+    particles.length = 0;
+    const count = Math.max(40, Math.floor((w * h) / 30000));
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * w, y: Math.random() * h,
+            r: Math.random() * 1.5 + 0.5,
+            vx: (Math.random() - 0.5) * 0.1, vy: (Math.random() - 0.5) * 0.1,
+            origX: 0, origY: 0
+        });
+        particles[i].origX = particles[i].x;
+        particles[i].origY = particles[i].y;
+    }
+}
+
+function drawConstellation() {
+    const { ctx, w, h } = canvases.constellationCanvas;
+    ctx.clearRect(0, 0, w, h);
+
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    ctx.fillStyle = accent;
+    ctx.strokeStyle = accent;
+    
+    const mouseRadius = 200;
+    const connectRadius = 120;
+
+    for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.globalAlpha = 0.6;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Constellation lines
+        const dxMouse = p.x - mouse.x;
+        const dyMouse = p.y - mouse.y;
+        const distMouse = Math.hypot(dxMouse, dyMouse);
+
+        if (distMouse < mouseRadius) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
+                const dx = p.x - p2.x;
+                const dy = p.y - p2.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist < connectRadius) {
+                    ctx.beginPath();
+                    ctx.globalAlpha = (1 - dist / connectRadius) * (1 - distMouse / mouseRadius) * 0.5;
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+}
+
+/* =======================================
+    6. BACKGROUND THUMBNAILS (DOM-based)
+    ======================================= */
 const bgContainer = document.getElementById('bgDesigns');
 const placed = [];
 const thumbSize = 110;
 const maxAttempts = 3000;
-const filesToUse = window.innerWidth < 700 ? files.slice(0, 10) : files;
+const filesToUse = window.innerWidth < 700 ? designImageFiles.slice(0, 10) : designImageFiles;
 
 filesToUse.forEach((file) => {
   const img = document.createElement('img');
   img.src = file;
-  img.alt = 'bg';
+  img.alt = 'background design thumbnail';
   // random positions
   let valid=false, tries=0, top=0, left=0;
   while(!valid && tries < maxAttempts){
@@ -311,13 +751,8 @@ filesToUse.forEach((file) => {
 });
 
 /* interactive repulsion for bg thumbs */
-let mouse = {x:-9999,y:-9999};
 const repulsionRadius = 140;
 const repulseStrength = 0.9;
-function handleMouseMove(e){ mouse.x = e.clientX; mouse.y = e.clientY; }
-function handleMouseLeave(){ mouse.x = -9999; mouse.y = -9999; }
-window.addEventListener('mousemove', handleMouseMove);
-window.addEventListener('mouseleave', handleMouseLeave);
 
 function updateBgPositions(){
   const imgs = bgContainer.querySelectorAll('img');
@@ -339,208 +774,296 @@ function updateBgPositions(){
     }
     img.style.transform = `translate(${img._offsetX}px, ${img._offsetY}px)`;
   });
-  requestAnimationFrame(updateBgPositions);
 }
-requestAnimationFrame(updateBgPositions);
 
-/* ============================
-   GALLERY CREATE (lazy)
-   ============================ */
-const gallery = document.getElementById('gallery');
-files.forEach(file => {
-  const card = document.createElement('div'); card.className = 'card';
-  const img = document.createElement('img'); img.src = file; img.loading = 'lazy'; img.alt = 'Design - ' + file;
-  card.appendChild(img);
-  gallery.appendChild(card);
-});
-gallery.addEventListener('click', e => { if(e.target.tagName === 'IMG') window.open(e.target.src,'_blank'); });
 
-/* ============================
-   SWIPER SHOWCASE (build slides)
-   ============================ */
-const swiperWrapper = document.getElementById('swiperWrapper');
-files.slice(0, Math.min(12, files.length)).forEach(f => {
-  const slide = document.createElement('div'); slide.className = 'swiper-slide';
-  const img = document.createElement('img'); img.src = f; img.alt = f; img.style.width='100%'; img.style.height='auto'; img.loading='lazy';
-  slide.appendChild(img); swiperWrapper.appendChild(slide);
-});
-const swiper = new Swiper('.mySwiper', {
-  loop:true, grabCursor:true, centeredSlides:true, slidesPerView:1.2, spaceBetween:24,
-  pagination:{ el:'.swiper-pagination', clickable:true }, navigation:{ nextEl:'.swiper-button-next', prevEl:'.swiper-button-prev' },
-  breakpoints:{ 700:{ slidesPerView:2.1 }, 1100:{ slidesPerView:3.1 } }
-});
 
-/* ============================
-   TYPER / TICKER (roles)
-   ============================ */
-const roles = ["Photoshop Specialist","Premiere Pro Editor","After Effects Motion Artist","3D Artist","Brand Creator","AI-assisted Designer"];
-let roleIdx = 0, charIdx = 0; const ticker = document.getElementById('roleTicker');
-function typeRole(){
-  const curr = roles[roleIdx];
-  charIdx++;
-  ticker.textContent = curr.slice(0,charIdx) + (charIdx % 2 ? '|' : '');
-  if(charIdx >= curr.length + 6){
-    setTimeout(()=>{ charIdx = 0; roleIdx = (roleIdx+1)%roles.length; setTimeout(typeRole,120); }, 1000);
-  } else setTimeout(typeRole,80);
+/* =======================================
+    7. ADVANCED FEATURE: INTERACTIVE PARTICLE NAME
+    ======================================= */
+let nameParticleEffect;
+class NameParticleEffect {
+    constructor(canvas, ctx, nameEl) {
+        this.canvas = canvas;
+        this.ctx = ctx;
+        this.nameEl = nameEl;
+        this.particles = [];
+        this.isHovering = false;
+        
+        const nameWrap = document.getElementById('nameWrap');
+        nameWrap.addEventListener('mouseenter', () => this.isHovering = true);
+        nameWrap.addEventListener('mouseleave', () => this.isHovering = false);
+    }
+
+    init() {
+        this.particles = [];
+        const rect = this.nameEl.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) {
+            console.warn("Name element not ready for particle effect.");
+            // Retry after a short delay if the element isn't sized yet
+            setTimeout(() => this.init(), 100);
+            return;
+        }
+
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = this.canvas.width;
+        tempCanvas.height = this.canvas.height;
+        
+        const style = getComputedStyle(this.nameEl);
+        tempCtx.fillStyle = '#fff'; // Use white for pixel detection
+        tempCtx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        tempCtx.textAlign = 'center';
+        tempCtx.textBaseline = 'middle';
+        
+        // Calculate the correct Y position relative to the viewport
+        const nameCenterY = rect.top + rect.height / 2;
+        tempCtx.fillText(this.nameEl.textContent, this.canvas.width / 2, nameCenterY);
+
+        const pixels = tempCtx.getImageData(0, 0, this.canvas.width, this.canvas.height).data;
+        const density = window.innerWidth < 700 ? 6 : 4;
+
+        for (let y = 0; y < this.canvas.height; y += density) {
+            for (let x = 0; x < this.canvas.width; x += density) {
+                const i = (y * this.canvas.width + x) * 4;
+                if (pixels[i + 3] > 128) {
+                    this.particles.push({
+                        homeX: x, homeY: y,
+                        x: x + (Math.random() - 0.5) * 50,
+                        y: y + (Math.random() - 0.5) * 50,
+                        vx: 0, vy: 0,
+                        radius: Math.random() * 1.5 + 0.5
+                    });
+                }
+            }
+        }
+    }
+
+    update() {
+        const repulsionRadius = 80;
+        const returnForce = 0.05;
+        const friction = 0.95;
+
+        this.particles.forEach(p => {
+            const dxMouse = p.x - mouse.x;
+            const dyMouse = p.y - mouse.y;
+            const distMouse = Math.hypot(dxMouse, dyMouse);
+            
+            if (this.isHovering && distMouse < repulsionRadius) {
+                const force = (repulsionRadius - distMouse) / repulsionRadius;
+                p.vx += (dxMouse / distMouse) * force * 2;
+                p.vy += (dyMouse / distMouse) * force * 2;
+            }
+
+            const dxHome = p.homeX - p.x;
+            const dyHome = p.homeY - p.y;
+            p.vx += dxHome * returnForce;
+            p.vy += dyHome * returnForce;
+
+            p.vx *= friction;
+            p.vy *= friction;
+
+            p.x += p.vx;
+            p.y += p.vy;
+        });
+    }
+
+    draw() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        const grad = this.ctx.createLinearGradient(0, 0, this.canvas.width, 0);
+        grad.addColorStop(0, getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
+        grad.addColorStop(1, getComputedStyle(document.documentElement).getPropertyValue('--accent-2').trim());
+        this.ctx.fillStyle = grad;
+
+        this.particles.forEach(p => {
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+    
+    resize() {
+        // Debounce resize to avoid rapid re-initialization
+        clearTimeout(this.resizeTimeout);
+        this.resizeTimeout = setTimeout(() => this.init(), 250);
+    }
 }
-typeRole();
 
-/* ============================
-   PARTICLES: background + name (reduced)
-   ============================ */
-const bgCanvas = document.getElementById('bgParticles');
-const nameCanvas = document.getElementById('nameParticles');
-const cursorCanvas = document.getElementById('cursorTrail');
-const resizeCanvases = () => {
-  [bgCanvas,nameCanvas,cursorCanvas].forEach(c=>{ c.width = innerWidth; c.height = innerHeight; });
-};
-resizeCanvases(); window.addEventListener('resize', resizeCanvases);
 
-/* bg ambient particles */
-const bgCtx = bgCanvas.getContext('2d');
-const bgParticles = [];
-const BG_COUNT = Math.max(30, Math.floor((innerWidth*innerHeight)/90000)); // scale with screen
-for(let i=0;i<BG_COUNT;i++){
-  bgParticles.push({ x:Math.random()*bgCanvas.width, y:Math.random()*bgCanvas.height, r:Math.random()*1.2+0.3,
-    vx:(Math.random()-0.5)*0.1, vy:(Math.random()-0.5)*0.1, alpha:Math.random()*0.45+0.04 });
+/* =======================================
+    8. MAIN ANIMATION LOOP & OTHER EFFECTS
+    ======================================= */
+function animate() {
+    drawCursorTrail();
+    drawBlobs();
+    drawConstellation();
+    updateBgPositions();
+    if (nameParticleEffect) {
+        nameParticleEffect.update();
+        nameParticleEffect.draw();
+    }
+    requestAnimationFrame(animate);
 }
-function updateBgParticles(){
-  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
-  bgParticles.forEach(p=>{
-    p.x += p.vx; p.y += p.vy;
-    if(p.x<0)p.x=bgCanvas.width; if(p.x>bgCanvas.width)p.x=0; if(p.y<0)p.y=bgCanvas.height; if(p.y>bgCanvas.height)p.y=0;
-    const dx = p.x - mouse.x, dy = p.y - mouse.y; const d = Math.hypot(dx,dy);
-    if(d < 100){ const push = (1 - d/100) * 0.45; p.x += (dx/d||0)*push*4; p.y += (dy/d||0)*push*4; }
-    bgCtx.beginPath(); bgCtx.fillStyle = `rgba(255,42,42,${p.alpha})`; bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2); bgCtx.fill();
-  });
-  requestAnimationFrame(updateBgParticles);
-}
-requestAnimationFrame(updateBgParticles);
 
-/* name particles (gentle emitter) */
-const nameCtx = nameCanvas.getContext('2d'); const nameParticles = [];
-function spawnNameParticle(x,y){
-  nameParticles.push({ x,y, vx:(Math.random()-0.5)*1.0, vy:-Math.random()*1.5-0.4, r:Math.random()*1.6+0.4, life:Math.random()*50+40,
-    color:`rgba(255,${80+Math.floor(Math.random()*90)},${80+Math.floor(Math.random()*40)},` });
-  if(nameParticles.length>300) nameParticles.splice(0,20);
-}
-const nameEl = document.getElementById('mainName');
-function emitFromName(){
-  const rect = nameEl.getBoundingClientRect();
-  const x = rect.left + Math.random()*rect.width; const y = rect.top + rect.height/2;
-  for(let i=0;i<2;i++) spawnNameParticle(x + (Math.random()-0.5)*8, y + (Math.random()-0.5)*4);
-}
-setInterval(emitFromName, 260);
-function updateNameParticles(){
-  nameCtx.clearRect(0,0,nameCanvas.width,nameCanvas.height);
-  for(let i=nameParticles.length-1;i>=0;i--){
-    const p = nameParticles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.life--;
-    const alpha = Math.max(0, p.life/100);
-    nameCtx.beginPath(); nameCtx.fillStyle = p.color + alpha + ')'; nameCtx.arc(p.x,p.y,p.r,0,Math.PI*2); nameCtx.fill();
-    if(p.life<=0) nameParticles.splice(i,1);
-  }
-  requestAnimationFrame(updateNameParticles);
-}
-requestAnimationFrame(updateNameParticles);
 
-/* cursor trail (soft glow) */
-const cCtx = cursorCanvas.getContext('2d');
-const trail = [];
-function updateCursorTrail(){
-  cCtx.clearRect(0,0,cursorCanvas.width,cursorCanvas.height);
-  for(let i=trail.length-1;i>=0;i--){
-    const t = trail[i]; t.life -= 2; t.x += t.vx; t.y += t.vy;
-    cCtx.beginPath();
-    cCtx.fillStyle = `rgba(255,90,90,${Math.max(0, t.life/60)})`;
-    cCtx.arc(t.x,t.y,t.r,0,Math.PI*2); cCtx.fill();
-    if(t.life <= 0) trail.splice(i,1);
-  }
-  requestAnimationFrame(updateCursorTrail);
-}
-updateCursorTrail();
-window.addEventListener('mousemove', (e) => {
-  trail.push({ x:e.clientX + (Math.random()-0.5)*4, y:e.clientY + (Math.random()-0.5)*4, vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4, r: Math.random()*4 + 1.2, life: 46 });
-  if(trail.length>120) trail.splice(0, trail.length-100);
-});
-
-/* small mouse quick-burst to name-particles */
-let lastMouse = {x:-9999,y:-9999,t:Date.now()};
-window.addEventListener('mousemove', (e) => {
-  const now = Date.now(); const dt = now - lastMouse.t; const dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
-  const speed = Math.hypot(dx,dy) / Math.max(1,dt);
-  if(speed > 0.9){ for(let i=0;i<6;i++) spawnNameParticle(e.clientX + (Math.random()-0.5)*40, e.clientY + (Math.random()-0.5)*20); }
-  lastMouse = {x:e.clientX, y:e.clientY, t:now};
-});
-
-/* ============================
-   GSAP / Scroll-triggered fades & reveals
-   ============================ */
+/* =======================================
+    9. GSAP SCROLL-TRIGGERED ANIMATIONS
+    ======================================= */
 gsap.registerPlugin(ScrollTrigger);
-/* fade out bg visuals as hero scrolls */
-gsap.to(".bg-designs", { opacity:0, filter:"blur(8px) brightness(0.18)", ease:"none",
-  scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 } });
-gsap.to(".gradient-overlay", { opacity:0.18, scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 }});
-gsap.to(".hero-inner", { opacity:0.18, y:-60, ease:"power1.out", scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.8 }});
-document.querySelectorAll('.section').forEach(sec => {
-  gsap.from(sec, { y:30, opacity:0, duration:0.9, ease:"power2.out", scrollTrigger:{ trigger:sec, start:"top 80%", toggleActions:"play none none none" }});
+
+function setupGsapAnimations() {
+    // Hero fade out
+    gsap.to(".hero-inner", { 
+        opacity:0,
+        y: -50,
+        scrollTrigger: {
+            trigger: ".hero",
+            start: "center center",
+            end: "bottom top",
+            scrub: true,
+        }
+    });
+
+    // Make floating designs canvas disappear on scroll
+    gsap.to(".bg-designs", { 
+        opacity:0, 
+        filter:"blur(8px) brightness(0.18)", 
+        ease:"none",
+        scrollTrigger:{ 
+            trigger:".hero", 
+            start:"top top", 
+            end:"bottom top", 
+            scrub:0.6 
+        } 
+    });
+
+
+    // Section disintegration effect
+    document.querySelectorAll('.section').forEach((section, index) => {
+        gsap.fromTo(section, 
+            { opacity: 0, y: 100 },
+            { 
+                opacity: 1, y: 0,
+                duration: 0.8,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: section,
+                    start: 'top 85%',
+                    toggleActions: 'play none none reverse'
+                }
+            }
+        );
+        
+        // Shimmer effect for section headers
+        const h2 = section.querySelector('h2');
+        if (h2) {
+             ScrollTrigger.create({
+                trigger: h2,
+                start: 'top 85%',
+                onEnter: () => h2.classList.add('in-view'),
+                onLeaveBack: () => h2.classList.remove('in-view'),
+                once: false
+            });
+        }
+    });
+    
+    // Gallery lazy load and fade-in
+    const gallery = document.getElementById('gallery');
+    ScrollTrigger.create({
+        trigger: gallery,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+            loadGalleryImages();
+            gallery.classList.add('visible');
+        }
+    });
+
+}
+
+/* =======================================
+    10. INITIALIZATION
+    ======================================= */
+
+// Role Ticker
+const roles = ["Photoshop Artist", "Motion Designer", "UI/UX Enthusiast", "AI-Assisted Creator", "Visual Storyteller"];
+let roleIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+const tickerEl = document.getElementById('roleTicker');
+
+function typeRole() {
+    const currentRole = roles[roleIndex];
+    let text;
+
+    if (isDeleting) {
+        text = currentRole.substring(0, charIndex--);
+    } else {
+        text = currentRole.substring(0, charIndex++);
+    }
+    tickerEl.textContent = text;
+
+    let typeSpeed = isDeleting ? 75 : 150;
+
+    if (!isDeleting && charIndex === currentRole.length) {
+        typeSpeed = 2000; // Pause at the end
+        isDeleting = true;
+    } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        roleIndex = (roleIndex + 1) % roles.length;
+        typeSpeed = 500; // Pause before new word
+    }
+
+    setTimeout(typeRole, typeSpeed);
+}
+
+
+// Lazy load gallery
+function loadGalleryImages() {
+    const galleryEl = document.getElementById('gallery');
+    if (galleryEl.children.length > 0) return; // Already loaded
+
+    designImageFiles.forEach(file => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const img = document.createElement('img');
+        img.src = file; // Direct link
+        img.alt = 'Portfolio design work';
+        img.loading = 'lazy';
+        card.appendChild(img);
+        galleryEl.appendChild(card);
+    });
+}
+
+// Start everything up
+resizeCanvases();
+initBlobs();
+initConstellation();
+
+// Wait a moment for layout to settle before initializing name particles
+setTimeout(() => {
+    const nameEl = document.getElementById('mainName');
+    nameParticleEffect = new NameParticleEffect(canvases.nameCanvas.canvas, canvases.nameCanvas.ctx, nameEl);
+    nameParticleEffect.init();
+}, 100);
+
+animate();
+typeRole();
+setupGsapAnimations();
+applyTimeBasedTheme();
+
+// Button listeners
+document.getElementById('btnDetails').addEventListener('click', () => {
+    document.getElementById('aboutSection').scrollIntoView({ behavior: 'smooth' });
 });
-gsap.to(".gallery", { opacity:1, y:0, duration:0.9, ease:"power2.out", scrollTrigger:{ trigger:"#gallerySection", start:"top 85%", toggleActions:"play none none none" }});
-
-/* ============================
-   Button smooth scrolls & magnetic effect
-   ============================ */
-const btnDetails = document.getElementById('btnDetails'), btnWork = document.getElementById('btnWork');
-btnDetails.addEventListener('click', ()=> document.getElementById('aboutSection').scrollIntoView({behavior:'smooth', block:'start'}));
-btnWork.addEventListener('click', ()=> document.getElementById('gallerySection').scrollIntoView({behavior:'smooth', block:'start'}));
-[btnDetails, btnWork].forEach(btn => {
-  // magnetic effect
-  btn.addEventListener('mousemove', (e) => {
-    const rect = btn.getBoundingClientRect();
-    const dx = e.clientX - (rect.left + rect.width/2);
-    const dy = e.clientY - (rect.top + rect.height/2);
-    btn.style.transform = `translate(${dx*0.08}px, ${dy*0.06}px)`;
-  });
-  btn.addEventListener('mouseleave', ()=> { btn.style.transform = `translate(0,0)`; });
+document.getElementById('btnWork').addEventListener('click', () => {
+    document.getElementById('gallerySection').scrollIntoView({ behavior: 'smooth' });
 });
 
-/* ============================
-   Swiper accessibility tweaks
-   ============================ */
-document.querySelectorAll('.swiper-slide img').forEach(img => img.setAttribute('alt','Showcase image'));
-
-/* ============================
-   Ambient audio toggle (optional)
-   ============================ */
-const audioToggle = document.getElementById('audioToggle'), ambient = document.getElementById('ambientAudio');
-audioToggle.addEventListener('click', ()=>{
-  if(ambient.paused){ ambient.volume = 0.25; ambient.play(); audioToggle.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>'; }
-  else { ambient.pause(); audioToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>'; }
 });
-
-/* ============================
-   Responsive optimizations
-   ============================ */
-function reduceForMobile(){ if(window.innerWidth < 700){ bgParticles.forEach(p => p.alpha *= 0.6); } }
-reduceForMobile();
-
-/* Resize recompute for bg thumb centers */
-window.addEventListener('resize', ()=>{
-  const imgs = bgContainer.querySelectorAll('img');
-  imgs.forEach(img => {
-    const rect = img.getBoundingClientRect();
-    img._origX = rect.left + rect.width/2;
-    img._origY = rect.top + rect.height/2;
-  });
-});
-
-/* ============================
-   Initial polish: set ARIA and keyboard focus
-   ============================ */
-btnDetails.setAttribute('aria-label','View details - scroll to About section');
-btnWork.setAttribute('aria-label','View work - scroll to Gallery section');
-btnDetails.tabIndex=0; btnWork.tabIndex=0;
-
-/* ===== DONE ===== */
 </script>
 </body>
 </html>
+
+
