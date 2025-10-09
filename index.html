@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Sehan Karunarathne | Pundusgundu — Portfolio (HEAVY)</title>
+<meta name="description" content="Portfolio of Sehan Karunarathne — Photoshop, Premiere Pro, After Effects, 3D art, UI/UX, branding, motion graphics, AI-assisted design." />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- GSAP + ScrollTrigger -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<!-- Swiper for showcase slider -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+
+<style>
+:root{
+  --accent:#ff2a2a; --accent-2:#ff7b7b; --bg:#000; --muted:#9b9b9b; --card:#121212;
+  --glass: rgba(255,255,255,0.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Poppins",sans-serif;background:var(--bg);color:#fff;overflow-y:auto;scroll-behavior:smooth;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+
+/* ---------- CANVAS LAYERS ---------- */
+canvas.particles, canvas.cursorTrail { position:fixed; left:0; top:0; width:100vw; height:100vh; pointer-events:none; z-index:0; }
+
+/* ---------- BACKGROUND THUMBS (interactive) ---------- */
+.bg-designs{ position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1; overflow:hidden;
+  filter: blur(3.5px) brightness(0.33); transition:opacity .6s ease, filter .6s ease; }
+.bg-designs img{ position:absolute; object-fit:cover; border-radius:8px; opacity:0; animation:fadeInOut 8s ease-in-out infinite;
+  will-change:transform,opacity; transition:transform .38s cubic-bezier(.22,.9,.27,1); }
+@keyframes fadeInOut{0%,100%{opacity:0}30%,70%{opacity:0.34}}
+
+/* ---------- GRADIENT OVERLAY (animated) ---------- */
+.gradient-overlay{
+  position:fixed; inset:0; z-index:2; pointer-events:none;
+  background: linear-gradient(120deg, rgba(255,42,42,0.06), rgba(120,40,200,0.05), rgba(0,120,255,0.03));
+  background-size: 600% 600%;
+  mix-blend-mode: screen;
+  animation: gradientMove 16s linear infinite;
+}
+@keyframes gradientMove{ 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
+
+/* ---------- HERO --------- */
+.hero{ position:relative; z-index:3; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:48px 20px; text-align:center; }
+.hero-inner{ max-width:1100px; width:100%; display:flex; flex-direction:column; align-items:center; gap:12px; }
+
+/* profile */
+.profile-pic{ width:170px;height:170px;border-radius:50%;object-fit:cover;border:3px solid var(--accent); animation:floatImg 4s ease-in-out infinite; box-shadow:0 12px 40px rgba(255,42,42,0.08); }
+@keyframes floatImg{ 0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)} }
+
+.name-wrap{ position:relative; display:inline-block; margin-top:8px; }
+h1.main-name{
+  font-size:3.1rem; font-weight:800; letter-spacing:0.6px; margin:0;
+  background:linear-gradient(90deg,var(--accent),#ff9c9c); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  filter: drop-shadow(0 6px 22px rgba(255,42,42,0.08));
+}
+.name-reflection{ transform:translateY(8px) scaleY(-1); opacity:0.06; filter: blur(2px); display:block; margin-top:10px; }
+
+/* ticker / typing */
+.ticker{ color:var(--muted); font-weight:600; margin-top:8px; min-height:28px; }
+
+/* bio + skills */
+.bio{ color:#d7d7d7; max-width:780px; margin-top:12px; line-height:1.6; font-size:1rem; }
+.skills{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
+.skill{ padding:8px 14px; border-radius:20px; font-weight:700; background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff; box-shadow:0 8px 24px rgba(255,42,42,0.06); transition:transform .18s }
+.skill:hover{ transform:translateY(-4px); }
+
+/* hero CTA - magnetic buttons */
+.hero-cta{ display:flex; gap:14px; margin-top:18px; justify-content:center; flex-wrap:wrap; }
+.btn{ padding:12px 28px; border-radius:28px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:#fff; font-weight:700; cursor:pointer; transition:transform .12s, box-shadow .12s; position:relative; overflow:hidden; }
+.btn.primary{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); box-shadow:0 10px 30px rgba(255,42,42,0.08); border:0; }
+.btn:hover{ transform:translateY(-6px) }
+
+/* floating icons */
+.icons{ display:flex; gap:16px; margin-top:14px; justify-content:center; font-size:20px; }
+.icons i{ color:var(--accent); transform-origin:center; animation:floatIcon 4s ease-in-out infinite; transition:transform .18s }
+.icons i:nth-child(odd){ animation-duration:4.6s }
+@keyframes floatIcon{ 0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)} }
+
+/* ---------- CONTENT SECTIONS ---------- */
+.content-wrap{ position:relative; z-index:3; padding:40px 20px 180px; max-width:1400px; margin:0 auto }
+.section{ margin-top:40px; padding:26px; border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 10px 40px rgba(0,0,0,0.6) }
+.section h2{ font-size:1.4rem; margin-bottom:10px }
+.section p{ color:var(--muted); line-height:1.6 }
+
+/* experiences grid */
+.experiences{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:18px; margin-top:12px }
+.exp-card{ background:var(--card); padding:16px; border-radius:12px; border:1px solid rgba(255,255,255,0.03); transition:transform .12s, box-shadow .12s }
+.exp-card:hover{ transform:translateY(-8px); box-shadow:0 18px 40px rgba(0,0,0,0.6) }
+.exp-card h3{ margin-bottom:6px }
+.exp-card small{ color:var(--muted) }
+
+/* timeline */
+.timeline{ margin-top:18px; position:relative; display:flex; flex-direction:column; gap:12px }
+.timeline .item{ display:flex; gap:12px; align-items:flex-start; }
+.timeline .dot{ width:12px;height:12px;border-radius:50%;background:var(--accent); margin-top:6px; flex-shrink:0 }
+
+/* tools / badges */
+.tools{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px }
+.tool{ padding:8px 12px; border-radius:10px; background:var(--glass); color:var(--muted); font-weight:700 }
+
+/* achievements */
+.achievements{ display:flex; gap:12px; flex-wrap:wrap; margin-top:12px }
+.badge{ padding:10px 14px; border-radius:10px; background:#0f0f0f; border:1px solid rgba(255,255,255,0.03); color:var(--muted); font-weight:700 }
+
+/* gallery & card */
+.gallery{ column-count:5; column-gap:15px; padding:40px 0; background:transparent; max-width:1800px; margin:40px auto 140px auto; opacity:0; transform:translateY(40px); transition:opacity .9s ease, transform .9s ease }
+.gallery.visible{ opacity:1; transform:translateY(0) }
+.card{ break-inside:avoid; margin-bottom:15px; border-radius:16px; overflow:hidden; background:#111; border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 28px rgba(0,0,0,0.6); transition:transform .28s }
+.card img{ width:100%; display:block; height:auto; transition:transform .45s, opacity .35s }
+.card:hover{ transform:scale(1.03) }
+.card img:hover{ transform:scale(1.03); opacity:.96 }
+
+/* Swiper showcase */
+.swiper{ width:100%; padding:24px 0 }
+.swiper-slide{ display:flex; align-items:center; justify-content:center; border-radius:12px; overflow:hidden; background:#0b0b0b; box-shadow:0 12px 40px rgba(0,0,0,0.6) }
+
+/* responsive */
+@media (max-width:1000px){ .gallery{ column-count:3 } .main-name{ font-size:2.2rem } }
+@media (max-width:700px){ .gallery{ column-count:2 } .profile-pic{ width:130px;height:130px } }
+@media (max-width:420px){ .gallery{ column-count:1 } .main-name{ font-size:1.6rem } .bio{ font-size:0.95rem } }
+</style>
+</head>
+<body>
+
+<!-- CANVASES -->
+<canvas id="bgParticles" class="particles"></canvas>
+<canvas id="nameParticles" class="particles"></canvas>
+<canvas id="cursorTrail" class="cursorTrail"></canvas>
+
+<!-- animated gradient overlay -->
+<div class="gradient-overlay" aria-hidden="true"></div>
+
+<!-- BG THUMBNAILS -->
+<div class="bg-designs" id="bgDesigns" aria-hidden="true"></div>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <img id="profilePic" class="profile-pic" src="your-image.jpg" alt="Sehan Karunarathne">
+    <div class="name-wrap" aria-hidden="false">
+      <h1 class="main-name" id="mainName">Sehan Karunarathne</h1>
+      <span class="name-reflection" aria-hidden="true">Sehan Karunarathne</span>
+    </div>
+
+    <div class="ticker" id="roleTicker" aria-live="polite"></div>
+
+    <p class="bio">I craft cinematic visuals and production-ready design systems — from multi-week Photoshop productions and motion promos to UI/UX and AI-accelerated ideation. Focus: Photoshop, Premiere Pro, After Effects & modern AI design stacks.</p>
+
+    <div class="skills" aria-hidden="true">
+      <div class="skill">Photoshop</div>
+      <div class="skill">Premiere Pro</div>
+      <div class="skill">After Effects</div>
+      <div class="skill">Figma</div>
+      <div class="skill">AI Tools</div>
+    </div>
+
+    <div class="icons" aria-hidden="true">
+      <i class="fa-brands fa-adobe" title="Adobe Suite"></i>
+      <i class="fa-brands fa-figma" title="Figma"></i>
+      <i class="fa-brands fa-unity" title="Unity"></i>
+      <i class="fa-solid fa-brush" title="Illustration"></i>
+      <i class="fa-solid fa-video" title="Motion"></i>
+    </div>
+
+    <div class="hero-cta">
+      <button class="btn primary" id="btnDetails">View Details</button>
+      <button class="btn" id="btnWork">View Work</button>
+      <button class="btn" id="audioToggle" title="Toggle ambient sound"><i class="fa-solid fa-volume-high"></i></button>
+    </div>
+  </div>
+</section>
+
+<!-- content -->
+<div class="content-wrap" id="contentWrap">
+
+  <div class="section" id="aboutSection">
+    <h2>About / Highlights</h2>
+    <p>I run deep visual projects — large Photoshop productions (multi-week build-ups), motion promos, brand systems, and hands-on design training. I blend classic tool mastery with fast AI workflows to deliver polished, production-ready assets and teach others how to do the same.</p>
+    <div class="tools" style="margin-top:12px;">
+      <div class="tool">Photoshop</div>
+      <div class="tool">Premiere Pro</div>
+      <div class="tool">After Effects</div>
+      <div class="tool">Canva</div>
+      <div class="tool">Google AI Studio</div>
+      <div class="tool">Ideogram</div>
+    </div>
+  </div>
+
+  <div class="section" id="experienceSection">
+    <h2>Experience & Projects</h2>
+    <p>Selected work & teaching highlights.</p>
+
+    <div class="experiences">
+      <div class="exp-card">
+        <h3>Graphic Designer — eSoft (Negombo)</h3>
+        <small>Full-time / Project-based</small>
+        <p style="margin-top:8px;color:var(--muted)">Conducted massive Photoshop workshops & production builds for campus promos. Managed branding and motion for multi-week campaigns.</p>
+      </div>
+
+      <div class="exp-card">
+        <h3>Print Vision — Freelance</h3>
+        <small>Print & Large-format Design</small>
+        <p style="margin-top:8px;color:var(--muted)">Designs for print media, billboards, and retail collaterals with color-managed production workflows.</p>
+      </div>
+
+      <div class="exp-card">
+        <h3>Small Enterprise Development — Training</h3>
+        <small>Design Courses</small>
+        <p style="margin-top:8px;color:var(--muted)">Designed and delivered practical design courses focused on branding & digital presence for small enterprises.</p>
+      </div>
+
+      <div class="exp-card">
+        <h3>DreamStay / NSIS / Knowledge Academy</h3>
+        <small>Branding & Visual Systems</small>
+        <p style="margin-top:8px;color:var(--muted)">Brand identity, social assets, and motion intros for startups and institutes.</p>
+      </div>
+    </div>
+
+    <div class="timeline" style="margin-top:16px">
+      <div class="item"><div class="dot"></div><div><strong>Massive Photoshop workshops</strong><div style="color:var(--muted)">eSoft Negombo — multi-week production builds</div></div></div>
+      <div class="item"><div class="dot"></div><div><strong>Design courses created</strong><div style="color:var(--muted)">Small Enterprise Development Division</div></div></div>
+      <div class="item"><div class="dot"></div><div><strong>Freelance & collaborations</strong><div style="color:var(--muted)">Print Vision, DreamStay, NSIS, Knowledge Academy</div></div></div>
+    </div>
+
+    <div class="achievements" style="margin-top:14px">
+      <div class="badge">Hosted Workshops @ eSoft</div>
+      <div class="badge">SED Course Creator</div>
+      <div class="badge">Brand Systems for Startups</div>
+    </div>
+  </div>
+
+  <div class="section" id="gallerySection">
+    <h2>Design Gallery</h2>
+    <p style="color:var(--muted)">Click any design to open high-res. Images lazy-load for faster initial load.</p>
+  </div>
+
+  <section class="gallery" id="gallery"></section>
+
+  <div class="section" id="showcase" style="margin-top:34px;">
+    <h2>Highlighted Showcase</h2>
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper" id="swiperWrapper">
+        <!-- slides inserted by JS -->
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-next"></div>
+      <div class="swiper-button-prev"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- optional ambient audio (user toggle) -->
+<audio id="ambientAudio" loop src="ambient-synth.mp3" crossorigin="anonymous"></audio>
+
+<script>
+/* ===========================
+   FILE LIST (replace with your files)
+   =========================== */
+const files = [
+  "Design (1).jpg","Design (1).webp","Design (2).jpg","Design (3).jpg","Design (4).jpg","Design (5).jpg",
+  "Design (6).png","Design (7).png","Design (8).png","Design (9).png","Design (10).jpg","Design (11).jpg",
+  "Design (12).jpg","Design (12).png","Design (13).png","Design (14).png","Design (15).png","Design (16).png",
+  "Design (17).jpg","Design (18).png","Design (19).png","Design (20).png","Design (21).png","Design (22).png",
+  "Design (23).png","Design (24).png","Design (25).png","Design (26).png","Design (27).png","Design (28).png",
+  "Design (29).png","Design (30).png","Design (31).png","Design (32).png","Design (33).png","Design (34).png",
+  "Design (35).png","Design (36).png","Design (37).png","Design (38).png","Design (39).png","Design (40).png",
+  "Design (41).png","Design (42).png","Design (43).png","Design (44).png","Design (45).png","Design (46).png",
+  "Design (47).png","Design (48).png","Design (49).png","Design (50).png","Design (51).png","Design (52).png",
+  "Design (53).png","Design (54).png"
+];
+
+/* ============================
+   BACKGROUND THUMBNAILS (random scatter)
+   ============================ */
+const bgContainer = document.getElementById('bgDesigns');
+const placed = [];
+const thumbSize = 110;
+const maxAttempts = 3000;
+const filesToUse = window.innerWidth < 700 ? files.slice(0, 10) : files;
+
+filesToUse.forEach((file) => {
+  const img = document.createElement('img');
+  img.src = file;
+  img.alt = 'bg';
+  // random positions
+  let valid=false, tries=0, top=0, left=0;
+  while(!valid && tries < maxAttempts){
+    top = Math.random() * (window.innerHeight - thumbSize);
+    left = Math.random() * (window.innerWidth - thumbSize);
+    valid = placed.every(p => Math.hypot(p.left - left, p.top - top) > thumbSize * 1.15);
+    tries++;
+  }
+  placed.push({top,left});
+  img.style.width = thumbSize + 'px';
+  img.style.height = thumbSize + 'px';
+  img.style.top = top + 'px';
+  img.style.left = left + 'px';
+  img.style.animationDelay = (Math.random() * 6) + 's';
+  img._origX = left + thumbSize/2;
+  img._origY = top + thumbSize/2;
+  img._offsetX = 0; img._offsetY = 0;
+  bgContainer.appendChild(img);
+});
+
+/* interactive repulsion for bg thumbs */
+let mouse = {x:-9999,y:-9999};
+const repulsionRadius = 140;
+const repulseStrength = 0.9;
+function handleMouseMove(e){ mouse.x = e.clientX; mouse.y = e.clientY; }
+function handleMouseLeave(){ mouse.x = -9999; mouse.y = -9999; }
+window.addEventListener('mousemove', handleMouseMove);
+window.addEventListener('mouseleave', handleMouseLeave);
+
+function updateBgPositions(){
+  const imgs = bgContainer.querySelectorAll('img');
+  imgs.forEach(img => {
+    const dx = img._origX - mouse.x;
+    const dy = img._origY - mouse.y;
+    const dist = Math.hypot(dx,dy);
+    if(dist < repulsionRadius){
+      const factor = (1 - (dist/repulsionRadius)) * repulseStrength * 1.6;
+      const nx = (dx/dist) || 0;
+      const ny = (dy/dist) || 0;
+      img._offsetX = nx * factor * 60;
+      img._offsetY = ny * factor * 44;
+    } else {
+      img._offsetX *= 0.88;
+      img._offsetY *= 0.88;
+      if(Math.abs(img._offsetX) < 0.1) img._offsetX = 0;
+      if(Math.abs(img._offsetY) < 0.1) img._offsetY = 0;
+    }
+    img.style.transform = `translate(${img._offsetX}px, ${img._offsetY}px)`;
+  });
+  requestAnimationFrame(updateBgPositions);
+}
+requestAnimationFrame(updateBgPositions);
+
+/* ============================
+   GALLERY CREATE (lazy)
+   ============================ */
+const gallery = document.getElementById('gallery');
+files.forEach(file => {
+  const card = document.createElement('div'); card.className = 'card';
+  const img = document.createElement('img'); img.src = file; img.loading = 'lazy'; img.alt = 'Design - ' + file;
+  card.appendChild(img);
+  gallery.appendChild(card);
+});
+gallery.addEventListener('click', e => { if(e.target.tagName === 'IMG') window.open(e.target.src,'_blank'); });
+
+/* ============================
+   SWIPER SHOWCASE (build slides)
+   ============================ */
+const swiperWrapper = document.getElementById('swiperWrapper');
+files.slice(0, Math.min(12, files.length)).forEach(f => {
+  const slide = document.createElement('div'); slide.className = 'swiper-slide';
+  const img = document.createElement('img'); img.src = f; img.alt = f; img.style.width='100%'; img.style.height='auto'; img.loading='lazy';
+  slide.appendChild(img); swiperWrapper.appendChild(slide);
+});
+const swiper = new Swiper('.mySwiper', {
+  loop:true, grabCursor:true, centeredSlides:true, slidesPerView:1.2, spaceBetween:24,
+  pagination:{ el:'.swiper-pagination', clickable:true }, navigation:{ nextEl:'.swiper-button-next', prevEl:'.swiper-button-prev' },
+  breakpoints:{ 700:{ slidesPerView:2.1 }, 1100:{ slidesPerView:3.1 } }
+});
+
+/* ============================
+   TYPER / TICKER (roles)
+   ============================ */
+const roles = ["Photoshop Specialist","Premiere Pro Editor","After Effects Motion Artist","3D Artist","Brand Creator","AI-assisted Designer"];
+let roleIdx = 0, charIdx = 0; const ticker = document.getElementById('roleTicker');
+function typeRole(){
+  const curr = roles[roleIdx];
+  charIdx++;
+  ticker.textContent = curr.slice(0,charIdx) + (charIdx % 2 ? '|' : '');
+  if(charIdx >= curr.length + 6){
+    setTimeout(()=>{ charIdx = 0; roleIdx = (roleIdx+1)%roles.length; setTimeout(typeRole,120); }, 1000);
+  } else setTimeout(typeRole,80);
+}
+typeRole();
+
+/* ============================
+   PARTICLES: background + name (reduced)
+   ============================ */
+const bgCanvas = document.getElementById('bgParticles');
+const nameCanvas = document.getElementById('nameParticles');
+const cursorCanvas = document.getElementById('cursorTrail');
+const resizeCanvases = () => {
+  [bgCanvas,nameCanvas,cursorCanvas].forEach(c=>{ c.width = innerWidth; c.height = innerHeight; });
+};
+resizeCanvases(); window.addEventListener('resize', resizeCanvases);
+
+/* bg ambient particles */
+const bgCtx = bgCanvas.getContext('2d');
+const bgParticles = [];
+const BG_COUNT = Math.max(30, Math.floor((innerWidth*innerHeight)/90000)); // scale with screen
+for(let i=0;i<BG_COUNT;i++){
+  bgParticles.push({ x:Math.random()*bgCanvas.width, y:Math.random()*bgCanvas.height, r:Math.random()*1.2+0.3,
+    vx:(Math.random()-0.5)*0.1, vy:(Math.random()-0.5)*0.1, alpha:Math.random()*0.45+0.04 });
+}
+function updateBgParticles(){
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+  bgParticles.forEach(p=>{
+    p.x += p.vx; p.y += p.vy;
+    if(p.x<0)p.x=bgCanvas.width; if(p.x>bgCanvas.width)p.x=0; if(p.y<0)p.y=bgCanvas.height; if(p.y>bgCanvas.height)p.y=0;
+    const dx = p.x - mouse.x, dy = p.y - mouse.y; const d = Math.hypot(dx,dy);
+    if(d < 100){ const push = (1 - d/100) * 0.45; p.x += (dx/d||0)*push*4; p.y += (dy/d||0)*push*4; }
+    bgCtx.beginPath(); bgCtx.fillStyle = `rgba(255,42,42,${p.alpha})`; bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2); bgCtx.fill();
+  });
+  requestAnimationFrame(updateBgParticles);
+}
+requestAnimationFrame(updateBgParticles);
+
+/* name particles (gentle emitter) */
+const nameCtx = nameCanvas.getContext('2d'); const nameParticles = [];
+function spawnNameParticle(x,y){
+  nameParticles.push({ x,y, vx:(Math.random()-0.5)*1.0, vy:-Math.random()*1.5-0.4, r:Math.random()*1.6+0.4, life:Math.random()*50+40,
+    color:`rgba(255,${80+Math.floor(Math.random()*90)},${80+Math.floor(Math.random()*40)},` });
+  if(nameParticles.length>300) nameParticles.splice(0,20);
+}
+const nameEl = document.getElementById('mainName');
+function emitFromName(){
+  const rect = nameEl.getBoundingClientRect();
+  const x = rect.left + Math.random()*rect.width; const y = rect.top + rect.height/2;
+  for(let i=0;i<2;i++) spawnNameParticle(x + (Math.random()-0.5)*8, y + (Math.random()-0.5)*4);
+}
+setInterval(emitFromName, 260);
+function updateNameParticles(){
+  nameCtx.clearRect(0,0,nameCanvas.width,nameCanvas.height);
+  for(let i=nameParticles.length-1;i>=0;i--){
+    const p = nameParticles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.life--;
+    const alpha = Math.max(0, p.life/100);
+    nameCtx.beginPath(); nameCtx.fillStyle = p.color + alpha + ')'; nameCtx.arc(p.x,p.y,p.r,0,Math.PI*2); nameCtx.fill();
+    if(p.life<=0) nameParticles.splice(i,1);
+  }
+  requestAnimationFrame(updateNameParticles);
+}
+requestAnimationFrame(updateNameParticles);
+
+/* cursor trail (soft glow) */
+const cCtx = cursorCanvas.getContext('2d');
+const trail = [];
+function updateCursorTrail(){
+  cCtx.clearRect(0,0,cursorCanvas.width,cursorCanvas.height);
+  for(let i=trail.length-1;i>=0;i--){
+    const t = trail[i]; t.life -= 2; t.x += t.vx; t.y += t.vy;
+    cCtx.beginPath();
+    cCtx.fillStyle = `rgba(255,90,90,${Math.max(0, t.life/60)})`;
+    cCtx.arc(t.x,t.y,t.r,0,Math.PI*2); cCtx.fill();
+    if(t.life <= 0) trail.splice(i,1);
+  }
+  requestAnimationFrame(updateCursorTrail);
+}
+updateCursorTrail();
+window.addEventListener('mousemove', (e) => {
+  trail.push({ x:e.clientX + (Math.random()-0.5)*4, y:e.clientY + (Math.random()-0.5)*4, vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4, r: Math.random()*4 + 1.2, life: 46 });
+  if(trail.length>120) trail.splice(0, trail.length-100);
+});
+
+/* small mouse quick-burst to name-particles */
+let lastMouse = {x:-9999,y:-9999,t:Date.now()};
+window.addEventListener('mousemove', (e) => {
+  const now = Date.now(); const dt = now - lastMouse.t; const dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
+  const speed = Math.hypot(dx,dy) / Math.max(1,dt);
+  if(speed > 0.9){ for(let i=0;i<6;i++) spawnNameParticle(e.clientX + (Math.random()-0.5)*40, e.clientY + (Math.random()-0.5)*20); }
+  lastMouse = {x:e.clientX, y:e.clientY, t:now};
+});
+
+/* ============================
+   GSAP / Scroll-triggered fades & reveals
+   ============================ */
+gsap.registerPlugin(ScrollTrigger);
+/* fade out bg visuals as hero scrolls */
+gsap.to(".bg-designs", { opacity:0, filter:"blur(8px) brightness(0.18)", ease:"none",
+  scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 } });
+gsap.to(".gradient-overlay", { opacity:0.18, scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 }});
+gsap.to(".hero-inner", { opacity:0.18, y:-60, ease:"power1.out", scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.8 }});
+document.querySelectorAll('.section').forEach(sec => {
+  gsap.from(sec, { y:30, opacity:0, duration:0.9, ease:"power2.out", scrollTrigger:{ trigger:sec, start:"top 80%", toggleActions:"play none none none" }});
+});
+gsap.to(".gallery", { opacity:1, y:0, duration:0.9, ease:"power2.out", scrollTrigger:{ trigger:"#gallerySection", start:"top 85%", toggleActions:"play none none none" }});
+
+/* ============================
+   Button smooth scrolls & magnetic effect
+   ============================ */
+const btnDetails = document.getElementById('btnDetails'), btnWork = document.getElementById('btnWork');
+btnDetails.addEventListener('click', ()=> document.getElementById('aboutSection').scrollIntoView({behavior:'smooth', block:'start'}));
+btnWork.addEventListener('click', ()=> document.getElementById('gallerySection').scrollIntoView({behavior:'smooth', block:'start'}));
+[btnDetails, btnWork].forEach(btn => {
+  // magnetic effect
+  btn.addEventListener('mousemove', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const dx = e.clientX - (rect.left + rect.width/2);
+    const dy = e.clientY - (rect.top + rect.height/2);
+    btn.style.transform = `translate(${dx*0.08}px, ${dy*0.06}px)`;
+  });
+  btn.addEventListener('mouseleave', ()=> { btn.style.transform = `translate(0,0)`; });
+});
+
+/* ============================
+   Swiper accessibility tweaks
+   ============================ */
+document.querySelectorAll('.swiper-slide img').forEach(img => img.setAttribute('alt','Showcase image'));
+
+/* ============================
+   Ambient audio toggle (optional)
+   ============================ */
+const audioToggle = document.getElementById('audioToggle'), ambient = document.getElementById('ambientAudio');
+audioToggle.addEventListener('click', ()=>{
+  if(ambient.paused){ ambient.volume = 0.25; ambient.play(); audioToggle.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>'; }
+  else { ambient.pause(); audioToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>'; }
+});
+
+/* ============================
+   Responsive optimizations
+   ============================ */
+function reduceForMobile(){ if(window.innerWidth < 700){ bgParticles.forEach(p => p.alpha *= 0.6); } }
+reduceForMobile();
+
+/* Resize recompute for bg thumb centers */
+window.addEventListener('resize', ()=>{
+  const imgs = bgContainer.querySelectorAll('img');
+  imgs.forEach(img => {
+    const rect = img.getBoundingClientRect();
+    img._origX = rect.left + rect.width/2;
+    img._origY = rect.top + rect.height/2;
+  });
+});
+
+/* ============================
+   Initial polish: set ARIA and keyboard focus
+   ============================ */
+btnDetails.setAttribute('aria-label','View details - scroll to About section');
+btnWork.setAttribute('aria-label','View work - scroll to Gallery section');
+btnDetails.tabIndex=0; btnWork.tabIndex=0;
+
+/* ===== DONE ===== */
+</script>
+</body>
+</html>
