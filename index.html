@@ -118,7 +118,6 @@ h1.main-name{
 .gallery{
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  /* [NEW] Define a small row height. Items will span multiple rows. */
   grid-auto-rows: 10px;
   gap: 12px;
   padding:28px 0;
@@ -136,7 +135,6 @@ h1.main-name{
   border:1px solid rgba(255,255,255,0.03);
   box-shadow:0 8px 28px rgba(0,0,0,0.6);
   transition:transform .22s;
-  /* [NEW] Prevents stretching that can occur in grid layouts */
   align-self: start;
 }
 .card img{ width:100%; display:block; height:auto; transition:transform .35s, opacity .28s }
@@ -150,14 +148,15 @@ h1.main-name{
   .hero{ padding:28px 14px }
   .skill{ padding:6px 10px }
   .btn{ padding:9px 16px }
-  .gallery { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  /* [MODIFIED] Force 3 columns on smaller devices */
+  .gallery { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width:420px){
   .main-name{ font-size:1.4rem }
   .bio{ font-size:0.88rem }
   .hero-inner{ gap:8px }
   .content-wrap{ padding-bottom:80px }
-  .gallery { grid-template-columns: 1fr; }
+  /* [REMOVED] The 1-column override is gone, so it will inherit the 3-column layout from above. */
 }
 
 /* light surface effect for small cards on mobile */
@@ -166,6 +165,52 @@ h1.main-name{
     background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
     border:1px solid rgba(255,255,255,0.02)
   }
+}
+
+/* ---------- Audio Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-content {
+  background: var(--card);
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+  max-width: 400px;
+  width: 90%;
+}
+.modal-overlay.visible .modal-content {
+    transform: scale(1);
+}
+.modal-content h2 {
+  margin-bottom: 8px;
+  font-size: 1.4rem;
+}
+.modal-content p {
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 </style>
 </head>
@@ -282,15 +327,26 @@ h1.main-name{
 
 </div>
 
-<!-- optional ambient audio (user toggle) -->
-<audio id="ambientAudio" loop src="https://cdn.pixabay.com/audio/2022/02/07/audio_19696135e8.mp3" crossorigin="anonymous"></audio>
+<!-- [NEW] Audio Permission Modal -->
+<div id="audioModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2>Enable Sound?</h2>
+    <p>This site features background music for a more immersive experience.</p>
+    <div class="modal-buttons">
+      <button id="enableAudioBtn" class="btn primary">Yes, enable sound</button>
+      <button id="disableAudioBtn" class="btn">No, thanks</button>
+    </div>
+  </div>
+</div>
+
+<!-- [MODIFIED] Replace this src with your 'ScoreSuite.mp3' file -->
+<audio id="ambientAudio" loop src="https://cdn.pixabay.com/audio/2022/08/04/audio_2dead894a1.mp3" crossorigin="anonymous"></audio>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
 /* ===========================
    IMAGE FILE LIST
-   Using your actual portfolio images for the best result.
    =========================== */
 const files = [
   "Design (1).jpg",
@@ -370,13 +426,11 @@ const files = [
 
 /* ============================
    BACKGROUND THUMBNAILS (random scatter)
-   This logic now attempts to place all images. The overlap-avoidance
-   naturally reduces density on smaller screens without hiding images arbitrarily.
    ============================ */
 const bgContainer = document.getElementById('bgDesigns');
 const placed = [];
 const thumbSize = Math.max(80, Math.floor(Math.min(window.innerWidth, 1400) * 0.08));
-const maxAttempts = 1500; // Increased attempts for better placement
+const maxAttempts = 1500;
 
 files.forEach((file) => {
   const img = document.createElement('img');
@@ -388,7 +442,6 @@ files.forEach((file) => {
   while(!valid && tries < maxAttempts){
     top = Math.random() * (window.innerHeight - thumbSize);
     left = Math.random() * (window.innerWidth - thumbSize);
-    // This check ensures images don't cluster too closely.
     valid = placed.every(p => Math.hypot(p.left - left, p.top - top) > thumbSize * 1.05);
     tries++;
   }
@@ -439,16 +492,14 @@ requestAnimationFrame(updateBgPositions);
 
 /* ============================
    GALLERY CREATION (Masonry Layout)
-   Calculates row spans for each image to create the masonry effect.
    ============================ */
 const gallery = document.getElementById('gallery');
-const rowHeight = 10; // Corresponds to grid-auto-rows in CSS
-const rowGap = 12;    // Corresponds to gap in CSS
+const rowHeight = 10;
+const rowGap = 12;
 
 function setMasonryLayout() {
     document.querySelectorAll('.gallery .card').forEach(card => {
         const img = card.querySelector('img');
-        // Ensure image is loaded and has a height
         if (img && img.clientHeight > 0) {
             const rowSpan = Math.ceil((img.clientHeight + rowGap) / (rowHeight + rowGap));
             card.style.gridRowEnd = `span ${rowSpan}`;
@@ -465,7 +516,6 @@ files.forEach(file => {
   img.alt = 'Portfolio design piece';
 
   img.onload = () => {
-    // [NEW] Calculate and apply the row span for this card
     const rowSpan = Math.ceil((img.clientHeight + rowGap) / (rowHeight + rowGap));
     card.style.gridRowEnd = `span ${rowSpan}`;
   };
@@ -478,10 +528,8 @@ files.forEach(file => {
   gallery.appendChild(card);
 });
 
-// Open image in new tab on click
 gallery.addEventListener('click', e => { if(e.target.tagName === 'IMG') window.open(e.target.src,'_blank'); });
 
-// Recalculate layout on window resize as column counts change
 let resizeTimeout;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
@@ -597,7 +645,6 @@ gsap.to(".hero-inner", { opacity:0.18, y:-40, ease:"power1.out", scrollTrigger:{
 document.querySelectorAll('.section').forEach(sec => {
   gsap.from(sec, { y:18, opacity:0, duration:0.9, ease:"power2.out", scrollTrigger:{ trigger:sec, start:"top 85%", toggleActions:"play none none none" }});
 });
-// Trigger the gallery fade-in animation
 ScrollTrigger.create({
   trigger: "#gallery",
   start: "top 88%",
@@ -625,26 +672,54 @@ document.querySelectorAll('.btn').forEach(btn => {
 
 
 /* ============================
-   Ambient audio toggle (optional)
+   [NEW] Ambient audio with permission modal
    ============================ */
+const audioModal = document.getElementById('audioModal');
+const enableAudioBtn = document.getElementById('enableAudioBtn');
+const disableAudioBtn = document.getElementById('disableAudioBtn');
 const audioToggle = document.getElementById('audioToggle');
 const ambient = document.getElementById('ambientAudio');
 let audioContext;
+let isAudioInitialized = false;
 
-audioToggle.addEventListener('click', ()=>{
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioContext.createMediaElementSource(ambient);
-    source.connect(audioContext.destination);
-  }
-
-  if(ambient.paused){
+function playAudio() {
+  if (ambient.paused) {
+    if (!isAudioInitialized) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaElementSource(ambient);
+      source.connect(audioContext.destination);
+      isAudioInitialized = true;
+    }
     ambient.volume = 0.22;
     ambient.play().catch(e => console.error("Audio play failed:", e));
     audioToggle.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
-  } else {
+  }
+}
+
+function pauseAudio() {
+  if (!ambient.paused) {
     ambient.pause();
     audioToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+  }
+}
+
+// Show modal on page load
+audioModal.classList.add('visible');
+
+enableAudioBtn.addEventListener('click', () => {
+  playAudio();
+  audioModal.classList.remove('visible');
+});
+
+disableAudioBtn.addEventListener('click', () => {
+  audioModal.classList.remove('visible');
+});
+
+audioToggle.addEventListener('click', () => {
+  if (ambient.paused) {
+    playAudio();
+  } else {
+    pauseAudio();
   }
 });
 
