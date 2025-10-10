@@ -10,9 +10,6 @@
 <!-- GSAP + ScrollTrigger -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<!-- Swiper for showcase slider (kept but showcase removed on load) -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 
 <style>
 :root{
@@ -117,29 +114,59 @@ h1.main-name{
 .tools{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
 .tool{ padding:8px 10px; border-radius:8px; background:var(--glass); color:var(--muted); font-weight:700 }
 
-/* gallery & card */
-.gallery{ column-count:5; column-gap:12px; padding:28px 0; background:transparent; max-width:1800px; margin:28px auto 120px auto; opacity:0; transform:translateY(30px); transition:opacity .9s ease, transform .9s ease }
+/* --- GALLERY & CARD (MASONRY LAYOUT) --- */
+.gallery{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  /* [NEW] Define a small row height. Items will span multiple rows. */
+  grid-auto-rows: 10px;
+  gap: 12px;
+  padding:28px 0;
+  max-width:1800px;
+  margin:28px auto 120px auto;
+  opacity:0;
+  transform:translateY(30px);
+  transition:opacity .9s ease, transform .9s ease;
+}
 .gallery.visible{ opacity:1; transform:translateY(0) }
-.card{ break-inside:avoid; margin-bottom:12px; border-radius:12px; overflow:hidden; background:#0c0c0c; border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 28px rgba(0,0,0,0.6); transition:transform .22s }
+.card{
+  border-radius:12px;
+  overflow:hidden;
+  background:#0c0c0c;
+  border:1px solid rgba(255,255,255,0.03);
+  box-shadow:0 8px 28px rgba(0,0,0,0.6);
+  transition:transform .22s;
+  /* [NEW] Prevents stretching that can occur in grid layouts */
+  align-self: start;
+}
 .card img{ width:100%; display:block; height:auto; transition:transform .35s, opacity .28s }
 .card:hover{ transform:scale(1.02) }
 .card img:hover{ transform:scale(1.03); opacity:.98 }
 
-/* Swiper (kept but showcase removed on load) */
-.swiper{ width:100%; padding:18px 0 }
-.swiper-slide{ display:flex; align-items:center; justify-content:center; border-radius:12px; overflow:hidden; background:#0b0b0b; box-shadow:0 12px 40px rgba(0,0,0,0.6) }
 
 /* responsive - mobile friendly */
-@media (max-width:1000px){ .gallery{ column-count:3 } .main-name{ font-size:2.2rem } }
-@media (max-width:700px){ .gallery{ column-count:2 } .profile-pic{ width:120px;height:120px } .hero{ padding:28px 14px } .skill{ padding:6px 10px } .btn{ padding:9px 16px } }
-@media (max-width:420px){ .gallery{ column-count:1 } .main-name{ font-size:1.4rem } .bio{ font-size:0.88rem } .hero-inner{ gap:8px } .content-wrap{ padding-bottom:80px } }
+@media (max-width:700px){
+  .profile-pic{ width:120px;height:120px }
+  .hero{ padding:28px 14px }
+  .skill{ padding:6px 10px }
+  .btn{ padding:9px 16px }
+  .gallery { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+}
+@media (max-width:420px){
+  .main-name{ font-size:1.4rem }
+  .bio{ font-size:0.88rem }
+  .hero-inner{ gap:8px }
+  .content-wrap{ padding-bottom:80px }
+  .gallery { grid-template-columns: 1fr; }
+}
 
 /* light surface effect for small cards on mobile */
-@media (max-width:700px){ .exp-card, .card, .section{ background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02) } }
-
-/* remove default image alt display (we set alt after successful load only) */
-img[role="hidden-if-missing"]{ visibility:visible }
-
+@media (max-width:700px){
+  .exp-card, .card, .section{
+    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    border:1px solid rgba(255,255,255,0.02)
+  }
+}
 </style>
 </head>
 <body>
@@ -158,10 +185,7 @@ img[role="hidden-if-missing"]{ visibility:visible }
 <!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-inner container">
-
-
-
-    <img id="profilePic" class="profile-pic" src="https://i.ibb.co/qMC5WLY8/Profile.png" alt="Sehan Karunarathne" onerror="this.remove();">
+    <img id="profilePic" class="profile-pic" src="https://i.ibb.co/qMC5WLY8/Profile.png" alt="Sehan Karunarathne" onerror="this.src='https://placehold.co/170x170/050507/ff2a2a?text=SK';">
     <div class="name-wrap" aria-hidden="false">
       <h1 class="main-name" id="mainName">Sehan Karunarathne</h1>
       <span class="name-reflection" aria-hidden="true">Sehan Karunarathne</span>
@@ -247,103 +271,147 @@ img[role="hidden-if-missing"]{ visibility:visible }
       <div class="item"><div class="dot"></div><div><strong>Freelance & collaborations</strong><div style="color:var(--muted)">Print Vision, DreamStay, NSIS, Knowledge Academy</div></div></div>
     </div>
 
-    <div class="achievements" style="margin-top:10px">
-      <div class="badge">Hosted Workshops @ eSoft</div>
-      <div class="badge">SED Course Creator</div>
-      <div class="badge">Brand Systems for Startups</div>
-    </div>
   </div>
 
   <div class="section" id="gallerySection">
     <h2>Design Gallery</h2>
-    <p style="color:var(--muted)">Click any design to open high-res. Images lazy-load for faster initial load. If an image file fails to load it will be removed automatically (so no broken icons or alt text will appear).</p>
+    <p style="color:var(--muted)">Click any design to open high-res. Images lazy-load for faster initial load. If an image file fails to load it will be removed automatically.</p>
   </div>
 
   <section class="gallery" id="gallery"></section>
 
-  <!-- Highlighted showcase removed programmatically on load to match request -->
-  <div id="showcasePlaceholder" style="display:none"></div>
-
 </div>
 
 <!-- optional ambient audio (user toggle) -->
-<audio id="ambientAudio" loop src="ambient-synth.mp3" crossorigin="anonymous"></audio>
+<audio id="ambientAudio" loop src="https://cdn.pixabay.com/audio/2022/02/07/audio_19696135e8.mp3" crossorigin="anonymous"></audio>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+
 /* ===========================
-   FILE LIST (replace with your files)
+   IMAGE FILE LIST
+   Using your actual portfolio images for the best result.
    =========================== */
-
-
-  const files = [
-  "Design (1).jpg","Design (1).webp","Design (2).jpg","Design (3).jpg","Design (4).jpg","Design (5).jpg",
-  "Design (6).png","Design (7).png","Design (8).png","Design (9).png","Design (10).jpg","Design (11).jpg",
-  "Design (12).jpg","Design (12).png","Design (13).png","Design (14).png","Design (15).png","Design (16).png",
-  "Design (17).jpg","Design (18).png","Design (19).png","Design (20).png","Design (21).png","Design (22).png",
-  "Design (23).png","Design (24).png","Design (25).png","Design (26).png","Design (27).png","Design (28).png",
-  "Design (29).png","Design (30).png","Design (31).png","Design (32).png","Design (33).png","Design (34).png",
-  "Design (35).png","Design (36).png","Design (37).png","Design (38).png","Design (39).png","Design (40).png",
-  "Design (41).png","Design (42).png","Design (43).png","Design (44).png","Design (45).png","Design (46).png",
-  "Design (47).png","Design (48).png","Design (49).png","Design (50).png","Design (51).png","Design (52).png",
-  "Design (53).png","Design (54).png"
+const files = [
+  "Design (1).jpg",
+  "Design (1).png",
+  "Design (10).jpg",
+  "Design (10).png",
+  "Design (11).jpg",
+  "Design (11).png",
+  "Design (12).jpg",
+  "Design (12).png",
+  "Design (13).jpg",
+  "Design (13).png",
+  "Design (14).jpg",
+  "Design (14).png",
+  "Design (15).jpg",
+  "Design (16).jpg",
+  "Design (16).png",
+  "Design (17).jpg",
+  "Design (17).png",
+  "Design (18).jpg",
+  "Design (18).png",
+  "Design (19).png",
+  "Design (2).jpg",
+  "Design (2).png",
+  "Design (20).png",
+  "Design (21).png",
+  "Design (22).png",
+  "Design (23).png",
+  "Design (24).png",
+  "Design (25).png",
+  "Design (26).png",
+  "Design (27).png",
+  "Design (28).png",
+  "Design (29).png",
+  "Design (3).jpg",
+  "Design (3).png",
+  "Design (30).png",
+  "Design (31).png",
+  "Design (32).png",
+  "Design (33).png",
+  "Design (34).png",
+  "Design (35).png",
+  "Design (36).png",
+  "Design (37).png",
+  "Design (38).png",
+  "Design (39).png",
+  "Design (4).jpg",
+  "Design (4).png",
+  "Design (40).png",
+  "Design (41).png",
+  "Design (42).png",
+  "Design (43).png",
+  "Design (44).png",
+  "Design (45).png",
+  "Design (46).png",
+  "Design (47).png",
+  "Design (48).png",
+  "Design (49).png",
+  "Design (5).jpg",
+  "Design (5).png",
+  "Design (50).png",
+  "Design (51).png",
+  "Design (52).png",
+  "Design (53).png",
+  "Design (54).png",
+  "Design (6).jpg",
+  "Design (6).png",
+  "Design (7).jpg",
+  "Design (7).png",
+  "Design (8).jpg",
+  "Design (8).png",
+  "Design (9).jpg",
+  "Design (9).png"
 ];
 
-/* ============================
-   Remove highlighted showcase (you asked to remove it entirely)
-   ============================ */
-(function removeShowcase(){
-  const showcase = document.getElementById('showcase');
-  if(showcase) showcase.remove();
-  // also remove any leftover swiper elements if present
-  const swiperEls = document.querySelectorAll('.mySwiper, .swiper, .swiper-wrapper');
-  swiperEls.forEach(e => e.remove());
-})();
+
 
 /* ============================
-   BACKGROUND THUMNAILS (random scatter) with fail-safe removal
+   BACKGROUND THUMBNAILS (random scatter)
+   This logic now attempts to place all images. The overlap-avoidance
+   naturally reduces density on smaller screens without hiding images arbitrarily.
    ============================ */
 const bgContainer = document.getElementById('bgDesigns');
 const placed = [];
 const thumbSize = Math.max(80, Math.floor(Math.min(window.innerWidth, 1400) * 0.08));
-const maxAttempts = 1200;
-const filesToUse = window.innerWidth < 700 ? files.slice(0, 8) : files.slice(0, 28);
+const maxAttempts = 1500; // Increased attempts for better placement
 
-filesToUse.forEach((file) => {
+files.forEach((file) => {
   const img = document.createElement('img');
   img.src = file;
-  // only add alt if it successfully loads (so missing images won't show alt text)
-  img.onload = () => {
-    img.alt = 'bg';
-  };
+  img.onload = () => { img.alt = 'background design thumbnail'; };
   img.onerror = () => { img.remove(); };
-  // random positions
+
   let valid=false, tries=0, top=0, left=0;
   while(!valid && tries < maxAttempts){
     top = Math.random() * (window.innerHeight - thumbSize);
     left = Math.random() * (window.innerWidth - thumbSize);
+    // This check ensures images don't cluster too closely.
     valid = placed.every(p => Math.hypot(p.left - left, p.top - top) > thumbSize * 1.05);
     tries++;
   }
-  placed.push({top,left});
-  img.style.width = thumbSize + 'px';
-  img.style.height = thumbSize + 'px';
-  img.style.top = top + 'px';
-  img.style.left = left + 'px';
-  img.style.animationDelay = (Math.random() * 6) + 's';
-  img._origX = left + thumbSize/2;
-  img._origY = top + thumbSize/2;
-  img._offsetX = 0; img._offsetY = 0;
-  bgContainer.appendChild(img);
+  if(valid){
+    placed.push({top,left});
+    img.style.width = thumbSize + 'px';
+    img.style.height = thumbSize + 'px';
+    img.style.top = top + 'px';
+    img.style.left = left + 'px';
+    img.style.animationDelay = (Math.random() * 6) + 's';
+    img._origX = left + thumbSize/2;
+    img._origY = top + thumbSize/2;
+    img._offsetX = 0; img._offsetY = 0;
+    bgContainer.appendChild(img);
+  }
 });
 
 /* interactive repulsion for bg thumbs */
 let mouse = {x:-9999,y:-9999};
 const repulsionRadius = 140;
 const repulseStrength = 0.9;
-function handleMouseMove(e){ mouse.x = e.clientX; mouse.y = e.clientY; }
-function handleMouseLeave(){ mouse.x = -9999; mouse.y = -9999; }
-window.addEventListener('mousemove', handleMouseMove);
-window.addEventListener('mouseleave', handleMouseLeave);
+window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
 
 function updateBgPositions(){
   const imgs = bgContainer.querySelectorAll('img');
@@ -370,21 +438,55 @@ function updateBgPositions(){
 requestAnimationFrame(updateBgPositions);
 
 /* ============================
-   GALLERY CREATE (lazy) - removes bad images so no broken alt text
+   GALLERY CREATION (Masonry Layout)
+   Calculates row spans for each image to create the masonry effect.
    ============================ */
 const gallery = document.getElementById('gallery');
+const rowHeight = 10; // Corresponds to grid-auto-rows in CSS
+const rowGap = 12;    // Corresponds to gap in CSS
+
+function setMasonryLayout() {
+    document.querySelectorAll('.gallery .card').forEach(card => {
+        const img = card.querySelector('img');
+        // Ensure image is loaded and has a height
+        if (img && img.clientHeight > 0) {
+            const rowSpan = Math.ceil((img.clientHeight + rowGap) / (rowHeight + rowGap));
+            card.style.gridRowEnd = `span ${rowSpan}`;
+        }
+    });
+}
+
 files.forEach(file => {
-  const card = document.createElement('div'); card.className = 'card';
-  const img = document.createElement('img'); img.src = file; img.loading = 'lazy';
-  // Wait for load to set alt and keep the element. If it errors -> remove the card.
-  img.onload = () => { img.alt = 'Design - ' + file; card.appendChild(img); };
-  img.onerror = () => { card.remove(); };
-  // Append card immediately so layout doesn't shift too suddenly; if image errors card will be removed.
+  const card = document.createElement('div');
+  card.className = 'card';
+  const img = document.createElement('img');
+  img.src = file;
+  img.loading = 'lazy';
+  img.alt = 'Portfolio design piece';
+
+  img.onload = () => {
+    // [NEW] Calculate and apply the row span for this card
+    const rowSpan = Math.ceil((img.clientHeight + rowGap) / (rowHeight + rowGap));
+    card.style.gridRowEnd = `span ${rowSpan}`;
+  };
+  img.onerror = () => {
+    card.remove();
+    console.warn(`Failed to load image: ${file}`);
+  };
+  
+  card.appendChild(img);
   gallery.appendChild(card);
 });
 
-// open on click (only if the target is an <img> that survived)
+// Open image in new tab on click
 gallery.addEventListener('click', e => { if(e.target.tagName === 'IMG') window.open(e.target.src,'_blank'); });
+
+// Recalculate layout on window resize as column counts change
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(setMasonryLayout, 200);
+});
 
 /* ============================
    TYPER / TICKER (roles)
@@ -402,7 +504,7 @@ function typeRole(){
 typeRole();
 
 /* ============================
-   PARTICLES: background + name (reduced on mobile)
+   CANVAS PARTICLES: background + name
    ============================ */
 const bgCanvas = document.getElementById('bgParticles');
 const nameCanvas = document.getElementById('nameParticles');
@@ -415,7 +517,7 @@ resizeCanvases(); window.addEventListener('resize', resizeCanvases);
 /* bg ambient particles */
 const bgCtx = bgCanvas.getContext('2d');
 const bgParticles = [];
-const BG_COUNT = Math.max(14, Math.floor((innerWidth*innerHeight)/140000)); // lighter on mobile
+const BG_COUNT = Math.max(14, Math.floor((innerWidth*innerHeight)/140000));
 for(let i=0;i<BG_COUNT;i++){
   bgParticles.push({ x:Math.random()*bgCanvas.width, y:Math.random()*bgCanvas.height, r:Math.random()*1.2+0.3,
     vx:(Math.random()-0.5)*0.08, vy:(Math.random()-0.5)*0.08, alpha:Math.random()*0.45+0.03 });
@@ -427,7 +529,9 @@ function updateBgParticles(){
     if(p.x<0)p.x=bgCanvas.width; if(p.x>bgCanvas.width)p.x=0; if(p.y<0)p.y=bgCanvas.height; if(p.y>bgCanvas.height)p.y=0;
     const dx = p.x - mouse.x, dy = p.y - mouse.y; const d = Math.hypot(dx,dy);
     if(d < 100){ const push = (1 - d/100) * 0.45; p.x += (dx/d||0)*push*3; p.y += (dy/d||0)*push*3; }
-    bgCtx.beginPath(); bgCtx.fillStyle = `rgba(255,42,42,${p.alpha})`; bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2); bgCtx.fill();
+    bgCtx.beginPath();
+    bgCtx.fillStyle = `rgba(255,42,42,${p.alpha})`;
+    bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2); bgCtx.fill();
   });
   requestAnimationFrame(updateBgParticles);
 }
@@ -435,17 +539,19 @@ requestAnimationFrame(updateBgParticles);
 
 /* name particles (gentle emitter) */
 const nameCtx = nameCanvas.getContext('2d'); const nameParticles = [];
+const nameEl = document.getElementById('mainName');
 function spawnNameParticle(x,y){
-  nameParticles.push({ x,y, vx:(Math.random()-0.5)*1.0, vy:-Math.random()*1.5-0.4, r:Math.random()*1.6+0.4, life:Math.random()*50+40,
-    color:`rgba(255,${80+Math.floor(Math.random()*90)},${80+Math.floor(Math.random()*40)},` });
+  const color = `rgba(255,${80+Math.floor(Math.random()*90)},${80+Math.floor(Math.random()*40)},`;
+  nameParticles.push({ x,y, vx:(Math.random()-0.5)*1.0, vy:-Math.random()*1.5-0.4, r:Math.random()*1.6+0.4, life:Math.random()*50+40, color });
   if(nameParticles.length>300) nameParticles.splice(0,20);
 }
-const nameEl = document.getElementById('mainName');
 function emitFromName(){
   if(!nameEl) return;
   const rect = nameEl.getBoundingClientRect();
-  const x = rect.left + Math.random()*rect.width; const y = rect.top + rect.height/2;
-  for(let i=0;i<2;i++) spawnNameParticle(x + (Math.random()-0.5)*8, y + (Math.random()-0.5)*4);
+  if (rect.width > 0) {
+    const x = rect.left + Math.random()*rect.width; const y = rect.top + rect.height/2;
+    for(let i=0;i<2;i++) spawnNameParticle(x + (Math.random()-0.5)*8, y + (Math.random()-0.5)*4);
+  }
 }
 setInterval(emitFromName, 300);
 function updateNameParticles(){
@@ -480,20 +586,10 @@ window.addEventListener('mousemove', (e) => {
   if(trail.length>120) trail.splice(0, trail.length-100);
 });
 
-/* small mouse quick-burst to name-particles */
-let lastMouse = {x:-9999,y:-9999,t:Date.now()};
-window.addEventListener('mousemove', (e) => {
-  const now = Date.now(); const dt = now - lastMouse.t; const dx = e.clientX - lastMouse.x, dy = e.clientY - lastMouse.y;
-  const speed = Math.hypot(dx,dy) / Math.max(1,dt);
-  if(speed > 0.9){ for(let i=0;i<6;i++) spawnNameParticle(e.clientX + (Math.random()-0.5)*40, e.clientY + (Math.random()-0.5)*20); }
-  lastMouse = {x:e.clientX, y:e.clientY, t:now};
-});
-
 /* ============================
    GSAP / Scroll-triggered fades & reveals
    ============================ */
 gsap.registerPlugin(ScrollTrigger);
-/* fade out bg visuals as hero scrolls */
 gsap.to(".bg-designs", { opacity:0, filter:"blur(8px) brightness(0.18)", ease:"none",
   scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 } });
 gsap.to(".gradient-overlay", { opacity:0.18, scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 }});
@@ -501,48 +597,55 @@ gsap.to(".hero-inner", { opacity:0.18, y:-40, ease:"power1.out", scrollTrigger:{
 document.querySelectorAll('.section').forEach(sec => {
   gsap.from(sec, { y:18, opacity:0, duration:0.9, ease:"power2.out", scrollTrigger:{ trigger:sec, start:"top 85%", toggleActions:"play none none none" }});
 });
-gsap.to(".gallery", { opacity:1, y:0, duration:0.9, ease:"power2.out", scrollTrigger:{ trigger:"#gallerySection", start:"top 88%", toggleActions:"play none none none" }});
+// Trigger the gallery fade-in animation
+ScrollTrigger.create({
+  trigger: "#gallery",
+  start: "top 88%",
+  onEnter: () => gallery.classList.add('visible'),
+  once: true
+});
 
 /* ============================
    Button smooth scrolls & magnetic effect
    ============================ */
-const btnDetails = document.getElementById('btnDetails'), btnWork = document.getElementById('btnWork');
+const btnDetails = document.getElementById('btnDetails');
+const btnWork = document.getElementById('btnWork');
 btnDetails.addEventListener('click', ()=> document.getElementById('aboutSection').scrollIntoView({behavior:'smooth', block:'start'}));
 btnWork.addEventListener('click', ()=> document.getElementById('gallerySection').scrollIntoView({behavior:'smooth', block:'start'}));
-[btnDetails, btnWork].forEach(btn => {
-  // magnetic effect
+
+document.querySelectorAll('.btn').forEach(btn => {
   btn.addEventListener('mousemove', (e) => {
     const rect = btn.getBoundingClientRect();
     const dx = e.clientX - (rect.left + rect.width/2);
     const dy = e.clientY - (rect.top + rect.height/2);
-    btn.style.transform = `translate(${dx*0.06}px, ${dy*0.04}px)`;
+    btn.style.transform = `translate(${dx*0.2}px, ${dy*0.35}px)`;
   });
   btn.addEventListener('mouseleave', ()=> { btn.style.transform = `translate(0,0)`; });
 });
 
+
 /* ============================
    Ambient audio toggle (optional)
    ============================ */
-const audioToggle = document.getElementById('audioToggle'), ambient = document.getElementById('ambientAudio');
+const audioToggle = document.getElementById('audioToggle');
+const ambient = document.getElementById('ambientAudio');
+let audioContext;
+
 audioToggle.addEventListener('click', ()=>{
-  if(ambient.paused){ ambient.volume = 0.22; ambient.play(); audioToggle.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>'; }
-  else { ambient.pause(); audioToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>'; }
-});
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioContext.createMediaElementSource(ambient);
+    source.connect(audioContext.destination);
+  }
 
-/* ============================
-   Responsive optimizations
-   ============================ */
-function reduceForMobile(){ if(window.innerWidth < 700){ bgParticles.forEach(p => p.alpha *= 0.6); } }
-reduceForMobile();
-
-/* Resize recompute for bg thumb centers */
-window.addEventListener('resize', ()=>{
-  const imgs = bgContainer.querySelectorAll('img');
-  imgs.forEach(img => {
-    const rect = img.getBoundingClientRect();
-    img._origX = rect.left + rect.width/2;
-    img._origY = rect.top + rect.height/2;
-  });
+  if(ambient.paused){
+    ambient.volume = 0.22;
+    ambient.play().catch(e => console.error("Audio play failed:", e));
+    audioToggle.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+  } else {
+    ambient.pause();
+    audioToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+  }
 });
 
 /* ============================
@@ -552,7 +655,7 @@ btnDetails.setAttribute('aria-label','View details - scroll to About section');
 btnWork.setAttribute('aria-label','View work - scroll to Gallery section');
 btnDetails.tabIndex=0; btnWork.tabIndex=0;
 
-/* ===== DONE ===== */
+});
 </script>
 </body>
 </html>
