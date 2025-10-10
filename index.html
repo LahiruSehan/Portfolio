@@ -7,7 +7,6 @@
 <meta name="description" content="Portfolio of Sehan Karunarathne — Photoshop, Premiere Pro, After Effects, 3D art, UI/UX, branding, motion graphics, AI-assisted design." />
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<!-- GSAP + ScrollTrigger -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
@@ -148,7 +147,6 @@ h1.main-name{
   .hero{ padding:28px 14px }
   .skill{ padding:6px 10px }
   .btn{ padding:9px 16px }
-  /* [MODIFIED] Force 3 columns on smaller devices */
   .gallery { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width:420px){
@@ -156,7 +154,6 @@ h1.main-name{
   .bio{ font-size:0.88rem }
   .hero-inner{ gap:8px }
   .content-wrap{ padding-bottom:80px }
-  /* [REMOVED] The 1-column override is gone, so it will inherit the 3-column layout from above. */
 }
 
 /* light surface effect for small cards on mobile */
@@ -216,18 +213,14 @@ h1.main-name{
 </head>
 <body>
 
-<!-- CANVASES -->
 <canvas id="bgParticles" class="particles"></canvas>
 <canvas id="nameParticles" class="particles"></canvas>
 <canvas id="cursorTrail" class="cursorTrail"></canvas>
 
-<!-- animated gradient overlay -->
 <div class="gradient-overlay" aria-hidden="true"></div>
 
-<!-- BG THUMBNAILS -->
 <div class="bg-designs" id="bgDesigns" aria-hidden="true"></div>
 
-<!-- HERO -->
 <section class="hero" id="hero">
   <div class="hero-inner container">
     <img id="profilePic" class="profile-pic" src="https://i.ibb.co/qMC5WLY8/Profile.png" alt="Sehan Karunarathne" onerror="this.src='https://placehold.co/170x170/050507/ff2a2a?text=SK';">
@@ -264,7 +257,6 @@ h1.main-name{
   </div>
 </section>
 
-<!-- content -->
 <div class="content-wrap container" id="contentWrap">
 
   <div class="section" id="aboutSection">
@@ -327,7 +319,6 @@ h1.main-name{
 
 </div>
 
-<!-- [NEW] Audio Permission Modal -->
 <div id="audioModal" class="modal-overlay">
   <div class="modal-content">
     <h2>Enable Sound?</h2>
@@ -339,15 +330,15 @@ h1.main-name{
   </div>
 </div>
 
-<!-- [MODIFIED] Replace this src with your 'ScoreSuite.mp3' file -->
-<audio id="ambientAudio" loop src="https://cdn.pixabay.com/audio/2022/08/04/audio_2dead894a1.mp3" crossorigin="anonymous"></audio>
+<audio id="ambientAudio" loop src="ScoreSuite.mp3"></audio>
+
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
 /* ===========================
-   IMAGE FILE LIST
-   =========================== */
+    IMAGE FILE LIST
+    =========================== */
 const files = [
   "Design (1).jpg",
   "Design (1).png",
@@ -425,8 +416,8 @@ const files = [
 
 
 /* ============================
-   BACKGROUND THUMBNAILS (random scatter)
-   ============================ */
+    BACKGROUND THUMBNAILS (random scatter)
+    ============================ */
 const bgContainer = document.getElementById('bgDesigns');
 const placed = [];
 const thumbSize = Math.max(80, Math.floor(Math.min(window.innerWidth, 1400) * 0.08));
@@ -491,8 +482,8 @@ function updateBgPositions(){
 requestAnimationFrame(updateBgPositions);
 
 /* ============================
-   GALLERY CREATION (Masonry Layout)
-   ============================ */
+    GALLERY CREATION (Masonry Layout)
+    ============================ */
 const gallery = document.getElementById('gallery');
 const rowHeight = 10;
 const rowGap = 12;
@@ -537,8 +528,8 @@ window.addEventListener('resize', () => {
 });
 
 /* ============================
-   TYPER / TICKER (roles)
-   ============================ */
+    TYPER / TICKER (roles)
+    ============================ */
 const roles = ["Photoshop Specialist","Premiere Pro Editor","After Effects Motion Artist","3D Artist","Brand Creator","AI-assisted Designer"];
 let roleIdx = 0, charIdx = 0; const ticker = document.getElementById('roleTicker');
 function typeRole(){
@@ -552,8 +543,8 @@ function typeRole(){
 typeRole();
 
 /* ============================
-   CANVAS PARTICLES: background + name
-   ============================ */
+    CANVAS PARTICLES: background + name
+    ============================ */
 const bgCanvas = document.getElementById('bgParticles');
 const nameCanvas = document.getElementById('nameParticles');
 const cursorCanvas = document.getElementById('cursorTrail');
@@ -635,8 +626,8 @@ window.addEventListener('mousemove', (e) => {
 });
 
 /* ============================
-   GSAP / Scroll-triggered fades & reveals
-   ============================ */
+    GSAP / Scroll-triggered fades & reveals
+    ============================ */
 gsap.registerPlugin(ScrollTrigger);
 gsap.to(".bg-designs", { opacity:0, filter:"blur(8px) brightness(0.18)", ease:"none",
   scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 } });
@@ -653,8 +644,8 @@ ScrollTrigger.create({
 });
 
 /* ============================
-   Button smooth scrolls & magnetic effect
-   ============================ */
+    Button smooth scrolls & magnetic effect
+    ============================ */
 const btnDetails = document.getElementById('btnDetails');
 const btnWork = document.getElementById('btnWork');
 btnDetails.addEventListener('click', ()=> document.getElementById('aboutSection').scrollIntoView({behavior:'smooth', block:'start'}));
@@ -671,9 +662,9 @@ document.querySelectorAll('.btn').forEach(btn => {
 });
 
 
-/* ============================
-   [NEW] Ambient audio with permission modal
-   ============================ */
+/* ===================================================
+   [FIXED] Ambient audio with permission modal logic
+   =================================================== */
 const audioModal = document.getElementById('audioModal');
 const enableAudioBtn = document.getElementById('enableAudioBtn');
 const disableAudioBtn = document.getElementById('disableAudioBtn');
@@ -684,14 +675,21 @@ let isAudioInitialized = false;
 
 function playAudio() {
   if (ambient.paused) {
+    // AudioContext must be created after a user gesture (like a click)
     if (!isAudioInitialized) {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const source = audioContext.createMediaElementSource(ambient);
       source.connect(audioContext.destination);
       isAudioInitialized = true;
     }
-    ambient.volume = 0.22;
+    
+    // Set a valid volume level (0.0 to 1.0)
+    ambient.volume = 0.4;
+    
+    // Play the audio
     ambient.play().catch(e => console.error("Audio play failed:", e));
+    
+    // Update the button icon to show the 'muted' state
     audioToggle.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
   }
 }
@@ -699,33 +697,37 @@ function playAudio() {
 function pauseAudio() {
   if (!ambient.paused) {
     ambient.pause();
+    // Update the button icon to show the 'unmuted' state
     audioToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
   }
 }
 
-// Show modal on page load
+// Show the permission modal as soon as the page loads
 audioModal.classList.add('visible');
 
+// Event listener for the "Yes" button in the modal
 enableAudioBtn.addEventListener('click', () => {
   playAudio();
   audioModal.classList.remove('visible');
 });
 
+// Event listener for the "No" button in the modal
 disableAudioBtn.addEventListener('click', () => {
   audioModal.classList.remove('visible');
 });
 
+// Event listener for the toggle button in the hero section
 audioToggle.addEventListener('click', () => {
   if (ambient.paused) {
-    playAudio();
+    playAudio(); // If paused, play it
   } else {
-    pauseAudio();
+    pauseAudio(); // If playing, pause it
   }
 });
 
 /* ============================
-   Initial polish: set ARIA and keyboard focus
-   ============================ */
+    Initial polish: set ARIA and keyboard focus
+    ============================ */
 btnDetails.setAttribute('aria-label','View details - scroll to About section');
 btnWork.setAttribute('aria-label','View work - scroll to Gallery section');
 btnDetails.tabIndex=0; btnWork.tabIndex=0;
@@ -734,4 +736,3 @@ btnDetails.tabIndex=0; btnWork.tabIndex=0;
 </script>
 </body>
 </html>
-
