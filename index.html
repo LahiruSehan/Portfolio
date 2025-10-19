@@ -262,7 +262,7 @@ footer { text-align: center; padding: 20px; font-size: 0.9rem; color: var(--mute
   .nav-right-group { gap: 15px; }
   .profile-pic, .profile-pic-glow { width:140px;height:140px }
   .hero{ padding: 80px 14px; }
-  .gallery { column-count: 2; }
+  .gallery { column-count: 3; }
   .section h2 { font-size: 1.8rem; }
   .ai-chat-widget { width: calc(100vw - 40px); }
 }
@@ -270,7 +270,7 @@ footer { text-align: center; padding: 20px; font-size: 0.9rem; color: var(--mute
   .main-name{ font-size:1.8rem }
   .bio{ font-size:0.88rem }
   .hero-inner{ gap:8px }
-  .gallery { column-count: 1; }
+  .gallery { column-count: 3; }
   .navbar { padding: 15px; }
   .navbar.scrolled { padding: 10px 15px; }
   .client-logo { height: 30px; }
@@ -594,7 +594,7 @@ if (audioConsent === 'enabled') {
   document.body.addEventListener('click', playOnFirstInteraction);
   document.body.addEventListener('keydown', playOnFirstInteraction);
 } else if (audioConsent !== 'disabled') {
-  setTimeout(() => audioModal.classList.add('visible'), 1000);
+  audioModal.classList.add('visible');
 }
 
 /* ============================
