@@ -3,328 +3,392 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Sehan Karunarathne | Portfolio </title>
+<title>Sehan Karunarathne | Interactive Portfolio</title>
 <meta name="description" content="Portfolio of Sehan Karunarathne — Photoshop, Premiere Pro, After Effects, 3D art, UI/UX, branding, motion graphics, AI-assisted design." />
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&family=Audiowide&family=Roboto+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
 <style>
 :root{
-  --accent:#ff2a2a; --accent-2:#ff7b7b; --bg:#050507; --muted:#9b9b9b; --card:#0f0f10;
-  --glass: rgba(255,255,255,0.03);
+  --accent:#ff2a2a; --accent-2:#ff7b7b; --bg:#050507; --muted:#9b9b9b; --card:#111113;
+  --glass: rgba(17, 17, 19, 0.6);
+  --text-primary: #ffffff;
+  --text-secondary: #d7d7d7;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+html,body{height:100%; scroll-behavior: smooth;}
 body{
-  font-family:"Poppins",sans-serif;background:radial-gradient(1200px 600px at 10% 10%, rgba(255,42,42,0.03), transparent), var(--bg);color:#fff;overflow-y:auto;scroll-behavior:smooth;
+  font-family:"Poppins",sans-serif;background:radial-gradient(1200px 600px at 10% 10%, rgba(255,42,42,0.04), transparent), var(--bg);color:var(--text-primary);overflow-y:auto; overflow-x: hidden;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
 }
-
-/* ---------- small global helpers ---------- */
 .container{max-width:1200px;margin:0 auto;padding:0 18px}
-.rounded{border-radius:12px}
-.soft-glow{box-shadow:0 8px 30px rgba(255,42,42,0.06)}
 
-/* ---------- CANVAS LAYERS ---------- */
-canvas.particles, canvas.cursorTrail { position:fixed; left:0; top:0; width:100vw; height:100vh; pointer-events:none; z-index:0; }
+/* ---------- NAVBAR ---------- */
+.navbar {
+  position: fixed; top: 0; left: 0; width: 100%; padding: 15px 30px;
+  display: flex; justify-content: space-between; align-items: center; z-index: 1000;
+  transition: transform 0.4s ease, background-color 0.4s ease, backdrop-filter 0.4s ease, padding 0.4s ease;
+}
+.navbar.scrolled {
+  background-color: var(--glass);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  padding: 10px 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.navbar.hidden { transform: translateY(-100%); }
+.nav-logo { font-family: 'Audiowide', cursive; font-size: 1.5rem; color: var(--text-primary); text-decoration: none; }
+.nav-right-group { display: flex; align-items: center; gap: 25px; }
+.nav-links { list-style: none; display: flex; gap: 25px; }
+.nav-links a { color: var(--text-secondary); text-decoration: none; font-weight: 600; position: relative; padding: 5px 0; transition: color 0.3s ease; }
+.nav-links a:hover { color: var(--accent); }
+.nav-links a::after {
+  content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px;
+  background: var(--accent); transform: scaleX(0); transform-origin: right;
+  transition: transform 0.3s ease-in-out;
+}
+.nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+.nav-btn { background: none; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; transition: color 0.3s, transform 0.3s; }
+.nav-btn:hover { color: var(--accent); transform: scale(1.1); }
+.mobile-nav-toggle { display: none; z-index: 1001; }
+.mobile-nav-menu {
+    display: none; position: fixed; top: 0; right: -100%;
+    width: 250px; height: 100%; background-color: var(--card);
+    flex-direction: column; align-items: center; justify-content: center;
+    transition: right 0.4s ease-in-out; z-index: 999;
+    box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+}
+.mobile-nav-menu.open { right: 0; }
+.mobile-nav-menu ul { list-style: none; display: flex; flex-direction: column; gap: 30px; text-align: center; }
+.mobile-nav-menu a { font-size: 1.5rem; }
 
-/* ---------- BACKGROUND THUMBS (interactive) ---------- */
-.bg-designs{ position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:1; overflow:hidden;
-  filter: blur(3.5px) brightness(0.33); transition:opacity .6s ease, filter .6s ease; }
-.bg-designs img{ position:absolute; object-fit:cover; border-radius:8px; opacity:0; animation:fadeInOut 8s ease-in-out infinite;
-  will-change:transform,opacity; transition:transform .38s cubic-bezier(.22,.9,.27,1); }
-@keyframes fadeInOut{0%,100%{opacity:0}30%,70%{opacity:0.34}}
 
-/* ---------- GRADIENT OVERLAY (animated) ---------- */
+/* ---------- CANVAS & OVERLAYS ---------- */
+canvas { position:fixed; left:0; top:0; width:100vw; height:100vh; pointer-events:none; z-index:0; }
 .gradient-overlay{
   position:fixed; inset:0; z-index:2; pointer-events:none;
   background: linear-gradient(120deg, rgba(255,42,42,0.06), rgba(120,40,200,0.05), rgba(0,120,255,0.03));
-  background-size: 600% 600%;
-  mix-blend-mode: screen;
+  background-size: 400% 400%; mix-blend-mode: screen;
   animation: gradientMove 16s linear infinite;
 }
-@keyframes gradientMove{ 0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%} }
+@keyframes gradientMove{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
 
-/* ---------- HERO --------- */
-.hero{ position:relative; z-index:3; min-height:86vh; display:flex; align-items:center; justify-content:center; padding:48px 20px; text-align:center; }
+/* ---------- BACKGROUND FLOATING IMAGES ---------- */
+.bg-designs { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; overflow: hidden; pointer-events: none; }
+.bg-designs img {
+  position: absolute; object-fit: cover; border-radius: 8px;
+  width: 120px; height: 120px; will-change: transform, opacity; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* ---------- HERO ---------- */
+.hero{ position:relative; z-index:3; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:80px 20px; text-align:center; }
 .hero-inner{ max-width:980px; width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; }
 
-/* profile */
-.profile-pic{ width:170px;height:170px;border-radius:50%;object-fit:cover;border:3px solid var(--accent); animation:floatImg 4s ease-in-out infinite; box-shadow:0 12px 40px rgba(255,42,42,0.06); }
+.code-intro { font-family: 'Roboto Mono', monospace; color: var(--accent-2); margin-bottom: 10px; font-size: 1rem; }
+.profile-pic-container { position: relative; }
+.profile-pic{ width:170px;height:170px;border-radius:50%;object-fit:cover;border:3px solid var(--accent); animation:floatImg 4s ease-in-out infinite; box-shadow:0 12px 40px rgba(255,42,42,0.1); position: relative; z-index: 2; }
+.profile-pic-glow {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 170px; height: 170px; background: var(--accent); border-radius: 50%; filter: blur(40px);
+  z-index: 1; animation: subtleGlow 4s ease-in-out infinite;
+}
+@keyframes subtleGlow { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.3; } }
 @keyframes floatImg{ 0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)} }
 
-.name-wrap{ position:relative; display:inline-block; margin-top:8px; }
 h1.main-name{
-  font-size:clamp(1.6rem, 3vw, 2.8rem); font-weight:800; letter-spacing:0.6px; margin:0;
-  background:linear-gradient(90deg,var(--accent),#ff9c9c); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  filter: drop-shadow(0 6px 18px rgba(255,42,42,0.06));
+  font-family: 'Audiowide', cursive; font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight:400; letter-spacing:1px; margin: 15px 0 5px;
+  background:linear-gradient(90deg, var(--accent), #ff9c9c, var(--accent));
+  background-size: 200% auto;
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  filter: drop-shadow(0 6px 20px rgba(255,42,42,0.1));
+  animation: gradientText 5s linear infinite;
 }
-.name-reflection{ transform:translateY(8px) scaleY(-1); opacity:0.06; filter: blur(2px); display:block; margin-top:8px; }
+@keyframes gradientText { to { background-position: 200% center; } }
 
-/* ticker / typing */
-.ticker{ color:var(--muted); font-weight:600; margin-top:8px; min-height:26px; }
-
-/* bio + skills */
-.bio{ color:#d7d7d7; max-width:760px; margin-top:8px; line-height:1.6; font-size:clamp(0.85rem, 1.8vw, 1rem); }
-.skills{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:12px; }
-.skill{ padding:8px 12px; border-radius:999px; font-weight:700; background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#fff; box-shadow:0 8px 24px rgba(255,42,42,0.06); transition:transform .18s }
-.skill:hover{ transform:translateY(-4px); }
-
-/* hero CTA - magnetic buttons */
+.ticker{ color:var(--muted); font-weight:600; margin-top:8px; min-height:26px; font-size: 1.1rem; }
+.bio{ color:#d7d7d7; max-width:760px; margin-top:8px; line-height:1.6; font-size:clamp(0.9rem, 1.8vw, 1rem); }
 .hero-cta{ display:flex; gap:12px; margin-top:14px; justify-content:center; flex-wrap:wrap; }
-.btn{ padding:10px 22px; border-radius:999px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:#fff; font-weight:700; cursor:pointer; transition:transform .12s, box-shadow .12s; position:relative; overflow:hidden; }
-.btn.primary{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); box-shadow:0 10px 30px rgba(255,42,42,0.08); border:0; }
+.btn{ padding:10px 22px; border-radius:999px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:#fff; font-weight:700; cursor:pointer; transition:transform .2s, box-shadow .2s; text-decoration: none; display: inline-block; }
+.btn.primary{ background:linear-gradient(90deg,var(--accent),var(--accent-2)); box-shadow:0 10px 30px rgba(255,42,42,0.15); border:0; }
 .btn:hover{ transform:translateY(-6px) }
 
-/* flashing "View Work" button */
-#btnWork{ animation:btnFlash 1.25s infinite; }
-@keyframes btnFlash{
-  0%{ transform:translateY(0) scale(1); box-shadow:0 10px 30px rgba(255,42,42,0.06) }
-  50%{ transform:translateY(-4px) scale(1.03); box-shadow:0 22px 60px rgba(255,122,122,0.12) }
-  100%{ transform:translateY(0) scale(1); box-shadow:0 10px 30px rgba(255,42,42,0.06) }
+/* ---------- CONTENT & SECTIONS ---------- */
+.content-wrap{ position:relative; z-index:3; padding:30px 12px 120px; }
+.section{
+    margin: 40px auto; padding:24px; border-radius:12px;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow:0 10px 40px rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    max-width: 1200px;
+}
+.section h2{ font-size:2rem; margin-bottom:12px; font-weight: 800; text-align: center; }
+.section p{ color:var(--muted); line-height:1.6; text-align: center; max-width: 800px; margin: 0 auto 20px auto;}
+
+/* Skills Section */
+.skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 30px; }
+.skill-item { }
+.skill-item h3 { margin-bottom: 8px; font-weight: 600; color: var(--text-secondary); }
+.skill-bar { width: 100%; height: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; overflow: hidden; }
+.skill-progress { width: 0%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 4px; transition: width 1.5s ease-out; }
+
+/* Clients Section */
+.clients-grid { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 40px; margin-top: 30px; }
+.client-logo { filter: grayscale(100%) brightness(0.8); transition: filter 0.3s; height: 40px; }
+.client-logo:hover { filter: grayscale(0%) brightness(1); }
+
+/* --- GALLERY (MASONRY LAYOUT) --- */
+.gallery-filters { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+.filter-btn { padding: 8px 18px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); background:transparent; color:#fff; font-weight: 600; cursor: pointer; transition: all .2s; }
+.filter-btn:hover { background: var(--accent); border-color: var(--accent); }
+.filter-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px rgba(255,42,42,0.3); }
+.gallery{ column-count: 4; column-gap: 15px; padding:28px 0; }
+.gallery-card{
+  margin-bottom: 15px; break-inside: avoid-column; border-radius:12px; overflow:hidden;
+  background:#0c0c0c; border:1px solid rgba(255,255,255,0.03); box-shadow:0 8px 28px rgba(0,0,0,0.6);
+  transition:transform .22s, opacity .3s, height .3s, margin .3s, padding .3s;
+  position: relative;
+}
+.gallery-card.hidden { transform: scale(0.8); opacity: 0; height: 0; margin: 0; padding: 0; border: none; }
+.gallery-card img{ width:100%; display:block; height:auto; }
+.card-info-overlay {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    color: white; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end;
+    opacity: 0; transform: translateY(20px); transition: all 0.4s ease;
+}
+.gallery-card:hover .card-info-overlay { opacity: 1; transform: translateY(0); }
+.card-info-overlay h3 { font-size: 1.2rem; margin-bottom: 5px; }
+.card-info-overlay p { font-size: 0.9rem; color: var(--muted); text-align: left; margin: 0; }
+
+
+/* --- FINAL CTA & FOOTER --- */
+.final-cta { text-align: center; padding: 60px 20px; }
+.final-cta h2 { font-size: clamp(2rem, 6vw, 3.5rem); margin-bottom: 20px; }
+.final-cta .animated-underline {
+    display: inline-block; position: relative;
+    background: linear-gradient(90deg, var(--accent), #ff9c9c);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.final-cta .animated-underline::after {
+    content: ''; position: absolute; bottom: -5px; left: 0;
+    width: 100%; height: 3px; background: var(--accent);
+    transform: scaleX(0); transition: transform 0.4s ease-out;
+}
+.final-cta.visible .animated-underline::after { transform: scaleX(1); }
+.footer-socials { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }
+.footer-socials a { font-size: 1.5rem; color: var(--muted); transition: color 0.3s, transform 0.3s; }
+.footer-socials a:hover { color: var(--accent); transform: translateY(-5px); }
+footer { text-align: center; padding: 20px; font-size: 0.9rem; color: var(--muted); }
+
+/* --- FLOATING WIDGETS --- */
+.floating-contact-bubble {
+    position: fixed; bottom: 20px; right: 20px; z-index: 998;
+    width: 60px; height: 60px; background: linear-gradient(45deg, var(--accent), var(--accent-2));
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 1.8rem; box-shadow: 0 5px 20px rgba(255,42,42,0.3);
+    cursor: pointer; animation: pulseGlow 2.5s infinite;
+}
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 5px 20px rgba(255,42,42,0.3); transform: scale(1); }
+    50% { box-shadow: 0 8px 35px rgba(255,42,42,0.5); transform: scale(1.05); }
 }
 
-/* floating icons */
-.icons{ display:flex; gap:12px; margin-top:12px; justify-content:center; font-size:20px; }
-.icons i{ color:var(--accent); transform-origin:center; animation:floatIcon 4s ease-in-out infinite; transition:transform .18s }
-@keyframes floatIcon{ 0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)} }
-
-/* ---------- CONTENT SECTIONS ---------- */
-.content-wrap{ position:relative; z-index:3; padding:30px 12px 120px; max-width:1400px; margin:0 auto }
-.section{ margin-top:28px; padding:18px; border-radius:12px; background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow:0 10px 40px rgba(0,0,0,0.6) }
-.section h2{ font-size:1.2rem; margin-bottom:8px }
-.section p{ color:var(--muted); line-height:1.6 }
-
-/* experiences grid */
-.experiences{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:8px }
-.exp-card{ background:var(--card); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); transition:transform .12s, box-shadow .12s }
-.exp-card:hover{ transform:translateY(-6px); box-shadow:0 18px 40px rgba(0,0,0,0.6) }
-.exp-card h3{ margin-bottom:6px }
-.exp-card small{ color:var(--muted) }
-
-/* timeline */
-.timeline{ margin-top:12px; position:relative; display:flex; flex-direction:column; gap:8px }
-.timeline .item{ display:flex; gap:12px; align-items:flex-start; }
-.timeline .dot{ width:10px;height:10px;border-radius:50%;background:var(--accent); margin-top:6px; flex-shrink:0 }
-
-/* tools / badges */
-.tools{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
-.tool{ padding:8px 10px; border-radius:8px; background:var(--glass); color:var(--muted); font-weight:700 }
-
-/* --- GALLERY & CARD (MASONRY LAYOUT) --- */
-.gallery{
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  grid-auto-rows: 10px;
-  gap: 12px;
-  padding:28px 0;
-  max-width:1800px;
-  margin:28px auto 120px auto;
-  opacity:0;
-  transform:translateY(30px);
-  transition:opacity .9s ease, transform .9s ease;
+/* AI Chat Widget */
+.ai-chat-widget {
+    position: fixed; bottom: 20px; left: -400px;
+    width: 350px; background: var(--card); border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5); z-index: 999;
+    overflow: hidden; transition: left 0.4s ease-in-out;
 }
-.gallery.visible{ opacity:1; transform:translateY(0) }
-.card{
-  border-radius:12px;
-  overflow:hidden;
-  background:#0c0c0c;
-  border:1px solid rgba(255,255,255,0.03);
-  box-shadow:0 8px 28px rgba(0,0,0,0.6);
-  transition:transform .22s;
-  align-self: start;
+.ai-chat-widget.open { left: 20px; }
+.ai-chat-header { background: var(--accent); padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: white; }
+.ai-chat-header h3 { font-size: 1rem; }
+#closeChatBtn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
+.ai-chat-body { padding: 15px; height: 300px; overflow-y: auto; }
+.ai-message { margin-bottom: 12px; }
+.ai-message p { padding: 8px 12px; border-radius: 10px; max-width: 80%; line-height: 1.4; font-size: 0.9rem; }
+.ai-message.bot p { background: #333; color: var(--text-secondary); text-align: left; }
+.user-questions { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+.user-questions button {
+    background: transparent; border: 1px solid var(--accent); color: var(--accent);
+    padding: 8px; border-radius: 8px; cursor: pointer; text-align: left; transition: all 0.2s;
 }
-.card img{ width:100%; display:block; height:auto; transition:transform .35s, opacity .28s }
-.card:hover{ transform:scale(1.02) }
-.card img:hover{ transform:scale(1.03); opacity:.98 }
+.user-questions button:hover { background: var(--accent); color: white; }
 
-
-/* responsive - mobile friendly */
-@media (max-width:700px){
-  .profile-pic{ width:120px;height:120px }
-  .hero{ padding:28px 14px }
-  .skill{ padding:6px 10px }
-  .btn{ padding:9px 16px }
-  .gallery { grid-template-columns: repeat(3, 1fr); }
+/* AUDIO MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);
+  display: flex; justify-content: center; align-items: center; z-index: 1001;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
 }
-@media (max-width:420px){
-  .main-name{ font-size:1.4rem }
+.modal-overlay.visible { opacity: 1; pointer-events: auto; }
+.modal-content {
+  background: var(--card); padding: 24px; border-radius: 12px; text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+  transform: scale(0.95); transition: transform 0.3s ease; max-width: 400px; width: 90%;
+}
+.modal-overlay.visible .modal-content { transform: scale(1); }
+.modal-content h2 { margin-bottom: 8px; font-size: 1.4rem; }
+.modal-content p { color: var(--muted); margin-bottom: 16px; margin-left: 0; text-align: center;}
+.modal-buttons { display: flex; gap: 12px; justify-content: center; }
+
+/* --- RESPONSIVE --- */
+@media (max-width:992px){
+  .gallery { column-count: 3; }
+}
+@media (max-width:768px){
+  .nav-links { display: none; }
+  .mobile-nav-toggle { display: block; }
+  .mobile-nav-menu { display: flex; }
+  .nav-right-group { gap: 15px; }
+  .profile-pic, .profile-pic-glow { width:140px;height:140px }
+  .hero{ padding: 80px 14px; }
+  .gallery { column-count: 2; }
+  .section h2 { font-size: 1.8rem; }
+  .ai-chat-widget { width: calc(100vw - 40px); }
+}
+@media (max-width:480px){
+  .main-name{ font-size:1.8rem }
   .bio{ font-size:0.88rem }
   .hero-inner{ gap:8px }
-  .content-wrap{ padding-bottom:80px }
-}
-
-/* light surface effect for small cards on mobile */
-@media (max-width:700px){
-  .exp-card, .card, .section{
-    background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
-    border:1px solid rgba(255,255,255,0.02)
-  }
-}
-
-/* ---------- Audio Modal ---------- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-.modal-overlay.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-.modal-content {
-  background: var(--card);
-  padding: 24px;
-  border-radius: 12px;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 10px 50px rgba(0,0,0,0.5);
-  transform: scale(0.95);
-  transition: transform 0.3s ease;
-  max-width: 400px;
-  width: 90%;
-}
-.modal-overlay.visible .modal-content {
-    transform: scale(1);
-}
-.modal-content h2 {
-  margin-bottom: 8px;
-  font-size: 1.4rem;
-}
-.modal-content p {
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-.modal-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
+  .gallery { column-count: 1; }
+  .navbar { padding: 15px; }
+  .navbar.scrolled { padding: 10px 15px; }
 }
 </style>
 </head>
 <body>
 
-<canvas id="bgParticles" class="particles"></canvas>
-<canvas id="nameParticles" class="particles"></canvas>
-<canvas id="cursorTrail" class="cursorTrail"></canvas>
+<canvas id="bgParticles"></canvas>
+<canvas id="cursorTrail"></canvas>
+<canvas id="nameParticles"></canvas>
 
 <div class="gradient-overlay" aria-hidden="true"></div>
-
 <div class="bg-designs" id="bgDesigns" aria-hidden="true"></div>
+
+<nav class="navbar" id="navbar">
+  <a href="#hero" class="nav-logo">SK</a>
+  <div class="nav-right-group">
+    <ul class="nav-links">
+      <li><a href="#aboutSection">About</a></li>
+      <li><a href="#skillsSection">Skills</a></li>
+      <li><a href="#gallerySection">Work</a></li>
+    </ul>
+    <button id="audioToggleBtn" class="nav-btn" aria-label="Toggle audio">
+      <i class="fa-solid fa-volume-xmark"></i>
+    </button>
+  </div>
+   <button class="mobile-nav-toggle nav-btn" aria-label="Toggle navigation menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+</nav>
+
+<nav class="mobile-nav-menu" id="mobileNavMenu">
+  <ul>
+    <li><a href="#aboutSection">About</a></li>
+    <li><a href="#skillsSection">Skills</a></li>
+    <li><a href="#gallerySection">Work</a></li>
+  </ul>
+</nav>
 
 <section class="hero" id="hero">
   <div class="hero-inner container">
-    <img id="profilePic" class="profile-pic" src="https://i.ibb.co/qMC5WLY8/Profile.png" alt="Sehan Karunarathne" onerror="this.src='https://placehold.co/170x170/050507/ff2a2a?text=SK';">
-    <div class="name-wrap" aria-hidden="false">
-      <h1 class="main-name" id="mainName">Sehan Karunarathne</h1>
-      <span class="name-reflection" aria-hidden="true">Sehan Karunarathne</span>
+    <div id="codeIntro" class="code-intro"></div>
+    <div class="profile-pic-container">
+        <img id="profilePic" class="profile-pic" src="Design (100).png" alt="Sehan Karunarathne" onerror="this.src='https://placehold.co/170x170/050507/ff2a2a?text=SK';">
+        <div class="profile-pic-glow"></div>
     </div>
-
+    <h1 class="main-name" id="mainName">Sehan Karunarathne</h1>
     <div class="ticker" id="roleTicker" aria-live="polite"></div>
-
-    <p class="bio">I craft cinematic visuals and production-ready design systems — from multi-week Photoshop productions and motion promos to UI/UX and AI-accelerated ideation. Focus: Photoshop, Premiere Pro, After Effects & modern AI design stacks.</p>
-
-    <div class="skills" aria-hidden="true">
-      <div class="skill">Photoshop</div>
-      <div class="skill">Premiere Pro</div>
-      <div class="skill">After Effects</div>
-      <div class="skill">Figma</div>
-      <div class="skill">AI Tools</div>
-    </div>
-
-    <div class="icons" aria-hidden="true">
-      <i class="fa-brands fa-adobe" title="Adobe Suite"></i>
-      <i class="fa-brands fa-figma" title="Figma"></i>
-      <i class="fa-brands fa-unity" title="Unity"></i>
-      <i class="fa-solid fa-brush" title="Illustration"></i>
-      <i class="fa-solid fa-video" title="Motion"></i>
-    </div>
-
+    <p class="bio">I craft cinematic visuals and production-ready design systems — from multi-week Photoshop productions and motion promos to UI/UX and AI-accelerated ideation.</p>
     <div class="hero-cta">
-      <button class="btn primary" id="btnDetails">View Details</button>
-      <button class="btn" id="btnWork">View Work</button>
-      <button class="btn" id="audioToggle" title="Toggle ambient sound"><i class="fa-solid fa-volume-high"></i></button>
+      <a href="#gallerySection" class="btn primary">View Work</a>
     </div>
   </div>
 </section>
 
 <div class="content-wrap container" id="contentWrap">
 
-  <div class="section" id="aboutSection">
-    <h2>About / Highlights</h2>
-    <p>I run deep visual projects — large Photoshop productions (multi-week build-ups), motion promos, brand systems, and hands-on design training. I blend classic tool mastery with fast AI workflows to deliver polished, production-ready assets and teach others how to do the same.</p>
-    <div class="tools" style="margin-top:12px;">
-      <div class="tool">Photoshop</div>
-      <div class="tool">Premiere Pro</div>
-      <div class="tool">After Effects</div>
-      <div class="tool">Canva</div>
-      <div class="tool">Google AI Studio</div>
-      <div class="tool">Ideogram</div>
+  <div class="section" id="skillsSection">
+    <h2>Skills & Tools</h2>
+    <p>My creative arsenal for building compelling digital experiences.</p>
+    <div class="skills-grid">
+        <div class="skill-item" data-skill="ps"><h3>Adobe Photoshop</h3><div class="skill-bar"><div class="skill-progress" data-progress="95"></div></div></div>
+        <div class="skill-item" data-skill="pr"><h3>Adobe Premiere Pro</h3><div class="skill-bar"><div class="skill-progress" data-progress="90"></div></div></div>
+        <div class="skill-item" data-skill="ae"><h3>Adobe After Effects</h3><div class="skill-bar"><div class="skill-progress" data-progress="85"></div></div></div>
+        <div class="skill-item" data-skill="fg"><h3>Figma</h3><div class="skill-bar"><div class="skill-progress" data-progress="80"></div></div></div>
+        <div class="skill-item" data-skill="ai"><h3>AI Design Stacks</h3><div class="skill-bar"><div class="skill-progress" data-progress="90"></div></div></div>
+        <div class="skill-item" data-skill="3d"><h3>3D & Illustration</h3><div class="skill-bar"><div class="skill-progress" data-progress="75"></div></div></div>
     </div>
   </div>
 
-  <div class="section" id="experienceSection">
-    <h2>Experience & Projects</h2>
-    <p>Selected work & teaching highlights.</p>
-
-    <div class="experiences">
-      <div class="exp-card">
-        <h3>Graphic Designer — eSoft (Negombo)</h3>
-        <small>Full-time / Project-based</small>
-        <p style="margin-top:8px;color:var(--muted)">Conducted massive Photoshop workshops & production builds for campus promos. Managed branding and motion for multi-week campaigns.</p>
+  <div class="section" id="clientsSection">
+      <h2>Trusted By</h2>
+      <p>I've had the pleasure of collaborating with a diverse range of clients and organizations.</p>
+      <div class="clients-grid">
+          <img src="ESOFT.jpg" alt="eSoft Logo" class="client-logo">
+          <img src="NSIS.png" alt="Print Vision Logo" class="client-logo">
+          <img src="BLOCKCHAIN.png" alt="DreamStay Logo" class="client-logo">
+          <img src="SED.png" alt="NSIS Logo" class="client-logo">
       </div>
-
-      <div class="exp-card">
-        <h3>Print Vision — Freelance</h3>
-        <small>Print & Large-format Design</small>
-        <p style="margin-top:8px;color:var(--muted)">Designs for print media, billboards, and retail collaterals with color-managed production workflows.</p>
-      </div>
-
-      <div class="exp-card">
-        <h3>Small Enterprise Development — Training</h3>
-        <small>Design Courses</small>
-        <p style="margin-top:8px;color:var(--muted)">Designed and delivered practical design courses focused on branding & digital presence for small enterprises.</p>
-      </div>
-
-      <div class="exp-card">
-        <h3>DreamStay / NSIS / Knowledge Academy</h3>
-        <small>Branding & Visual Systems</small>
-        <p style="margin-top:8px;color:var(--muted)">Brand identity, social assets, and motion intros for startups and institutes.</p>
-      </div>
-    </div>
-
-    <div class="timeline" style="margin-top:12px">
-      <div class="item"><div class="dot"></div><div><strong>Massive Photoshop workshops</strong><div style="color:var(--muted)">eSoft Negombo — multi-week production builds</div></div></div>
-      <div class="item"><div class="dot"></div><div><strong>Design courses created</strong><div style="color:var(--muted)">Small Enterprise Development Division</div></div></div>
-      <div class="item"><div class="dot"></div><div><strong>Freelance & collaborations</strong><div style="color:var(--muted)">Print Vision, DreamStay, NSIS, Knowledge Academy</div></div></div>
-    </div>
-
   </div>
 
   <div class="section" id="gallerySection">
     <h2>Design Gallery</h2>
-    <p style="color:var(--muted)">Click any design to open high-res. Images lazy-load for faster initial load. If an image file fails to load it will be removed automatically.</p>
+    <p>A selection of my recent work. Hover for details, click to expand, or give it a like!</p>
+    <div class="gallery-filters" id="galleryFilters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="poster">Posters</button>
+      <button class="filter-btn" data-filter="ui">UI/UX</button>
+      <button class="filter-btn" data-filter="branding">Branding</button>
+    </div>
+    <section class="gallery" id="gallery"></section>
   </div>
+</div>
 
-  <section class="gallery" id="gallery"></section>
+<div class="final-cta" id="finalCta">
+    <h2><span class>Let's Build Something Epic.</span></h2>
+    <div class="footer-socials">
+        <a href="#" aria-label="Behance"><i class="fab fa-behance"></i></a>
+        <a href="#" aria-label="Dribbble"><i class="fab fa-dribbble"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+    </div>
+</div>
 
+<footer>
+    <p>&copy; <span id="year"></span> Sehan Karunarathne. All Rights Reserved.</p>
+</footer>
+
+<div class="floating-contact-bubble" id="chatBubble">
+    <i class="fa-solid fa-comments"></i>
+</div>
+
+<div class="ai-chat-widget" id="aiChatWidget">
+    <div class="ai-chat-header">
+        <h3>Ask Me Anything!</h3>
+        <button id="closeChatBtn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ai-chat-body" id="aiChatBody">
+        <div class="ai-message bot"><p>Hello! I'm a bot. Ask me a question about Sehan's work.</p></div>
+    </div>
+    <div class="user-questions" id="userQuestions">
+        <button data-question="tools">What tools do you use?</button>
+        <button data-question="experience">What's your experience?</button>
+        <button data-question="contact">How can I contact you?</button>
+    </div>
 </div>
 
 <div id="audioModal" class="modal-overlay">
   <div class="modal-content">
     <h2>Enable Sound?</h2>
-    <p>This site features background music for a more immersive experience.</p>
+    <p>This site features background music and sound effects for a more immersive experience.</p>
     <div class="modal-buttons">
-      <button id="enableAudioBtn" class="btn primary">Yes, enable sound</button>
+      <button id="enableAudioBtn" class="btn primary">Yes, enable</button>
       <button id="disableAudioBtn" class="btn">No, thanks</button>
     </div>
   </div>
@@ -332,405 +396,422 @@ h1.main-name{
 
 <audio id="ambientAudio" loop src="ScoreSuite.mp3"></audio>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
 /* ===========================
-    IMAGE FILE LIST
-    =========================== */
-const files = [
-  "Design (1).jpg",
-  "Design (1).png",
-  "Design (10).jpg",
-  "Design (10).png",
-  "Design (11).jpg",
-  "Design (11).png",
-  "Design (12).jpg",
-  "Design (12).png",
-  "Design (13).jpg",
-  "Design (13).png",
-  "Design (14).jpg",
-  "Design (14).png",
-  "Design (15).jpg",
-  "Design (16).jpg",
-  "Design (16).png",
-  "Design (17).jpg",
-  "Design (17).png",
-  "Design (18).jpg",
-  "Design (18).png",
-  "Design (19).png",
-  "Design (2).jpg",
-  "Design (2).png",
-  "Design (20).png",
-  "Design (21).png",
-  "Design (22).png",
-  "Design (23).png",
-  "Design (24).png",
-  "Design (25).png",
-  "Design (26).png",
-  "Design (27).png",
-  "Design (28).png",
-  "Design (29).png",
-  "Design (3).jpg",
-  "Design (3).png",
-  "Design (30).png",
-  "Design (31).png",
-  "Design (32).png",
-  "Design (33).png",
-  "Design (34).png",
-  "Design (35).png",
-  "Design (36).png",
-  "Design (37).png",
-  "Design (38).png",
-  "Design (39).png",
-  "Design (4).jpg",
-  "Design (4).png",
-  "Design (40).png",
-  "Design (41).png",
-  "Design (42).png",
-  "Design (43).png",
-  "Design (44).png",
-  "Design (45).png",
-  "Design (46).png",
-  "Design (47).png",
-  "Design (48).png",
-  "Design (49).png",
-  "Design (5).jpg",
-  "Design (5).png",
-  "Design (50).png",
-  "Design (51).png",
-  "Design (52).png",
-  "Design (53).png",
-  "Design (54).png",
-  "Design (6).jpg",
-  "Design (6).png",
-  "Design (7).jpg",
-  "Design (7).png",
-  "Design (8).jpg",
-  "Design (8).png",
-  "Design (9).jpg",
-  "Design (9).png"
-];
+    CONSTANTS & STATE
+=========================== */
+const IMAGE_FILES = [
+  { file: "Design (1).jpg", category: "poster" },
+  { file: "Design (1).png", category: "poster" },
+  { file: "Design (2).jpg", category: "poster" },
+  { file: "Design (2).png", category: "poster" },
+  { file: "Design (3).jpg", category: "poster" },
+  { file: "Design (3).png", category: "poster" },
+  { file: "Design (4).jpg", category: "poster" },
+  { file: "Design (4).png", category: "poster" },
+  { file: "Design (5).jpg", category: "poster" },
+  { file: "Design (5).png", category: "poster" },
+  { file: "Design (6).jpg", category: "poster" },
+  { file: "Design (6).png", category: "poster" },
+  { file: "Design (7).jpg", category: "poster" },
+  { file: "Design (7).png", category: "poster" },
+  { file: "Design (8).jpg", category: "poster" },
+  { file: "Design (8).png", category: "poster" },
+  { file: "Design (9).jpg", category: "poster" },
+  { file: "Design (9).png", category: "poster" },
+  { file: "Design (10).jpg", category: "poster" },
+  { file: "Design (10).png", category: "poster" },
+  { file: "Design (11).jpg", category: "poster" },
+  { file: "Design (11).png", category: "poster" },
+  { file: "Design (12).jpg", category: "poster" },
+  { file: "Design (12).png", category: "poster" },
+  { file: "Design (13).jpg", category: "poster" },
+  { file: "Design (13).png", category: "poster" },
+  { file: "Design (14).jpg", category: "poster" },
+  { file: "Design (14).png", category: "poster" },
+  { file: "Design (15).jpg", category: "poster" },
+  { file: "Design (16).jpg", category: "poster" },
+  { file: "Design (16).png", category: "poster" },
+  { file: "Design (17).jpg", category: "poster" },
+  { file: "Design (17).png", category: "poster" },
+  { file: "Design (18).jpg", category: "poster" },
+  { file: "Design (18).png", category: "poster" },
+  { file: "Design (19).png", category: "poster" },
+  { file: "Design (20).png", category: "poster" },
+  { file: "Design (21).png", category: "poster" },
+  { file: "Design (22).png", category: "poster" },
+  { file: "Design (23).png", category: "poster" },
+  { file: "Design (24).png", category: "poster" },
+  { file: "Design (25).png", category: "poster" },
+  { file: "Design (26).png", category: "poster" },
+  { file: "Design (27).png", category: "poster" },
+  { file: "Design (28).png", category: "poster" },
+  { file: "Design (29).png", category: "poster" },
+  { file: "Design (30).png", category: "poster" },
+  { file: "Design (31).png", category: "poster" },
+  { file: "Design (32).png", category: "poster" },
+  { file: "Design (33).png", category: "poster" },
+  { file: "Design (34).png", category: "poster" },
+  { file: "Design (35).png", category: "poster" },
+  { file: "Design (36).png", category: "poster" },
+  { file: "Design (37).png", category: "poster" },
+  { file: "Design (38).png", category: "poster" },
+  { file: "Design (39).png", category: "poster" },
+  { file: "Design (40).png", category: "poster" },
+  { file: "Design (41).png", category: "poster" },
+  { file: "Design (42).png", category: "poster" },
+  { file: "Design (43).png", category: "poster" },
+  { file: "Design (44).png", category: "poster" },
+  { file: "Design (45).png", category: "poster" },
+  { file: "Design (46).png", category: "poster" },
+  { file: "Design (47).png", category: "poster" },
+  { file: "Design (48).png", category: "poster" },
+  { file: "Design (49).png", category: "poster" },
+  { file: "Design (50).png", category: "poster" },
+  { file: "Design (51).png", category: "poster" },
+  { file: "Design (52).png", category: "poster" },
+  { file: "Design (53).png", category: "poster" },
+  { file: "Design (54).png", category: "poster" },
+  { file: "Design (100).png", category: "poster" }
+].sort(() => 0.5 - Math.random());
 
 
+const ROLES = ["Photoshop Specialist","Premiere Pro Editor","After Effects Motion Artist","Brand Creator","AI-assisted Designer"];
+const CLICK_SOUND_B64 = "data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA";
+const clickSound = new Audio(CLICK_SOUND_B64);
 
-/* ============================
-    BACKGROUND THUMBNAILS (random scatter)
-    ============================ */
-const bgContainer = document.getElementById('bgDesigns');
-const placed = [];
-const thumbSize = Math.max(80, Math.floor(Math.min(window.innerWidth, 1400) * 0.08));
-const maxAttempts = 1500;
+/* ===========================
+    GENERAL SETUP & NAVBAR
+=========================== */
+document.getElementById('year').textContent = new Date().getFullYear();
+const navbar = document.getElementById('navbar');
+let lastScrollY = window.scrollY;
 
-files.forEach((file) => {
-  const img = document.createElement('img');
-  img.src = file;
-  img.onload = () => { img.alt = 'background design thumbnail'; };
-  img.onerror = () => { img.remove(); };
+window.addEventListener('scroll', () => {
+    // Scrolled class for background
+    if (window.scrollY > 50) navbar.classList.add('scrolled');
+    else navbar.classList.remove('scrolled');
 
-  let valid=false, tries=0, top=0, left=0;
-  while(!valid && tries < maxAttempts){
-    top = Math.random() * (window.innerHeight - thumbSize);
-    left = Math.random() * (window.innerWidth - thumbSize);
-    valid = placed.every(p => Math.hypot(p.left - left, p.top - top) > thumbSize * 1.05);
-    tries++;
-  }
-  if(valid){
-    placed.push({top,left});
-    img.style.width = thumbSize + 'px';
-    img.style.height = thumbSize + 'px';
-    img.style.top = top + 'px';
-    img.style.left = left + 'px';
-    img.style.animationDelay = (Math.random() * 6) + 's';
-    img._origX = left + thumbSize/2;
-    img._origY = top + thumbSize/2;
-    img._offsetX = 0; img._offsetY = 0;
-    bgContainer.appendChild(img);
-  }
-});
-
-/* interactive repulsion for bg thumbs */
-let mouse = {x:-9999,y:-9999};
-const repulsionRadius = 140;
-const repulseStrength = 0.9;
-window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
-window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
-
-function updateBgPositions(){
-  const imgs = bgContainer.querySelectorAll('img');
-  imgs.forEach(img => {
-    const dx = img._origX - mouse.x;
-    const dy = img._origY - mouse.y;
-    const dist = Math.hypot(dx,dy);
-    if(dist < repulsionRadius){
-      const factor = (1 - (dist/repulsionRadius)) * repulseStrength * 1.6;
-      const nx = (dx/dist) || 0;
-      const ny = (dy/dist) || 0;
-      img._offsetX = nx * factor * 60;
-      img._offsetY = ny * factor * 44;
+    // Hide/show on scroll direction change
+    if (window.scrollY > lastScrollY && window.scrollY > 100) {
+        navbar.classList.add('hidden');
     } else {
-      img._offsetX *= 0.88;
-      img._offsetY *= 0.88;
-      if(Math.abs(img._offsetX) < 0.1) img._offsetX = 0;
-      if(Math.abs(img._offsetY) < 0.1) img._offsetY = 0;
+        navbar.classList.remove('hidden');
     }
-    img.style.transform = `translate(${img._offsetX}px, ${img._offsetY}px)`;
-  });
-  requestAnimationFrame(updateBgPositions);
-}
-requestAnimationFrame(updateBgPositions);
+    lastScrollY = window.scrollY;
+});
 
-/* ============================
-    GALLERY CREATION (Masonry Layout)
-    ============================ */
-const gallery = document.getElementById('gallery');
-const rowHeight = 10;
-const rowGap = 12;
-
-function setMasonryLayout() {
-    document.querySelectorAll('.gallery .card').forEach(card => {
-        const img = card.querySelector('img');
-        if (img && img.clientHeight > 0) {
-            const rowSpan = Math.ceil((img.clientHeight + rowGap) / (rowHeight + rowGap));
-            card.style.gridRowEnd = `span ${rowSpan}`;
-        }
+// Mobile Nav
+const mobileNavToggle = document.querySelector('.mobile-nav-toggle');
+const mobileNavMenu = document.getElementById('mobileNavMenu');
+mobileNavToggle.addEventListener('click', () => {
+    mobileNavMenu.classList.toggle('open');
+    mobileNavToggle.innerHTML = mobileNavMenu.classList.contains('open') ? '<i class="fa-solid fa-xmark"></i>' : '<i class="fa-solid fa-bars"></i>';
+});
+mobileNavMenu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+        mobileNavMenu.classList.remove('open');
+        mobileNavToggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
     });
-}
-
-files.forEach(file => {
-  const card = document.createElement('div');
-  card.className = 'card';
-  const img = document.createElement('img');
-  img.src = file;
-  img.loading = 'lazy';
-  img.alt = 'Portfolio design piece';
-
-  img.onload = () => {
-    const rowSpan = Math.ceil((img.clientHeight + rowGap) / (rowHeight + rowGap));
-    card.style.gridRowEnd = `span ${rowSpan}`;
-  };
-  img.onerror = () => {
-    card.remove();
-    console.warn(`Failed to load image: ${file}`);
-  };
-  
-  card.appendChild(img);
-  gallery.appendChild(card);
 });
 
-gallery.addEventListener('click', e => { if(e.target.tagName === 'IMG') window.open(e.target.src,'_blank'); });
-
-let resizeTimeout;
-window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(setMasonryLayout, 200);
-});
 
 /* ============================
-    TYPER / TICKER (roles)
-    ============================ */
-const roles = ["Photoshop Specialist","Premiere Pro Editor","After Effects Motion Artist","3D Artist","Brand Creator","AI-assisted Designer"];
-let roleIdx = 0, charIdx = 0; const ticker = document.getElementById('roleTicker');
-function typeRole(){
-  const curr = roles[roleIdx];
-  charIdx++;
-  ticker.textContent = curr.slice(0,charIdx) + (charIdx % 2 ? '|' : '');
-  if(charIdx >= curr.length + 6){
-    setTimeout(()=>{ charIdx = 0; roleIdx = (roleIdx+1)%roles.length; setTimeout(typeRole,120); }, 1000);
-  } else setTimeout(typeRole,80);
-}
-typeRole();
-
-/* ============================
-    CANVAS PARTICLES: background + name
-    ============================ */
-const bgCanvas = document.getElementById('bgParticles');
-const nameCanvas = document.getElementById('nameParticles');
-const cursorCanvas = document.getElementById('cursorTrail');
-const resizeCanvases = () => {
-  [bgCanvas,nameCanvas,cursorCanvas].forEach(c=>{ c.width = innerWidth; c.height = innerHeight; });
-};
-resizeCanvases(); window.addEventListener('resize', resizeCanvases);
-
-/* bg ambient particles */
-const bgCtx = bgCanvas.getContext('2d');
-const bgParticles = [];
-const BG_COUNT = Math.max(14, Math.floor((innerWidth*innerHeight)/140000));
-for(let i=0;i<BG_COUNT;i++){
-  bgParticles.push({ x:Math.random()*bgCanvas.width, y:Math.random()*bgCanvas.height, r:Math.random()*1.2+0.3,
-    vx:(Math.random()-0.5)*0.08, vy:(Math.random()-0.5)*0.08, alpha:Math.random()*0.45+0.03 });
-}
-function updateBgParticles(){
-  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
-  bgParticles.forEach(p=>{
-    p.x += p.vx; p.y += p.vy;
-    if(p.x<0)p.x=bgCanvas.width; if(p.x>bgCanvas.width)p.x=0; if(p.y<0)p.y=bgCanvas.height; if(p.y>bgCanvas.height)p.y=0;
-    const dx = p.x - mouse.x, dy = p.y - mouse.y; const d = Math.hypot(dx,dy);
-    if(d < 100){ const push = (1 - d/100) * 0.45; p.x += (dx/d||0)*push*3; p.y += (dy/d||0)*push*3; }
-    bgCtx.beginPath();
-    bgCtx.fillStyle = `rgba(255,42,42,${p.alpha})`;
-    bgCtx.arc(p.x,p.y,p.r,0,Math.PI*2); bgCtx.fill();
-  });
-  requestAnimationFrame(updateBgParticles);
-}
-requestAnimationFrame(updateBgParticles);
-
-/* name particles (gentle emitter) */
-const nameCtx = nameCanvas.getContext('2d'); const nameParticles = [];
-const nameEl = document.getElementById('mainName');
-function spawnNameParticle(x,y){
-  const color = `rgba(255,${80+Math.floor(Math.random()*90)},${80+Math.floor(Math.random()*40)},`;
-  nameParticles.push({ x,y, vx:(Math.random()-0.5)*1.0, vy:-Math.random()*1.5-0.4, r:Math.random()*1.6+0.4, life:Math.random()*50+40, color });
-  if(nameParticles.length>300) nameParticles.splice(0,20);
-}
-function emitFromName(){
-  if(!nameEl) return;
-  const rect = nameEl.getBoundingClientRect();
-  if (rect.width > 0) {
-    const x = rect.left + Math.random()*rect.width; const y = rect.top + rect.height/2;
-    for(let i=0;i<2;i++) spawnNameParticle(x + (Math.random()-0.5)*8, y + (Math.random()-0.5)*4);
-  }
-}
-setInterval(emitFromName, 300);
-function updateNameParticles(){
-  nameCtx.clearRect(0,0,nameCanvas.width,nameCanvas.height);
-  for(let i=nameParticles.length-1;i>=0;i--){
-    const p = nameParticles[i]; p.x += p.vx; p.y += p.vy; p.vy += 0.03; p.life--;
-    const alpha = Math.max(0, p.life/100);
-    nameCtx.beginPath(); nameCtx.fillStyle = p.color + alpha + ')'; nameCtx.arc(p.x,p.y,p.r,0,Math.PI*2); nameCtx.fill();
-    if(p.life<=0) nameParticles.splice(i,1);
-  }
-  requestAnimationFrame(updateNameParticles);
-}
-requestAnimationFrame(updateNameParticles);
-
-/* cursor trail (soft glow) */
-const cCtx = cursorCanvas.getContext('2d');
-const trail = [];
-function updateCursorTrail(){
-  cCtx.clearRect(0,0,cursorCanvas.width,cursorCanvas.height);
-  for(let i=trail.length-1;i>=0;i--){
-    const t = trail[i]; t.life -= 2; t.x += t.vx; t.y += t.vy;
-    cCtx.beginPath();
-    cCtx.fillStyle = `rgba(255,90,90,${Math.max(0, t.life/60)})`;
-    cCtx.arc(t.x,t.y,t.r,0,Math.PI*2); cCtx.fill();
-    if(t.life <= 0) trail.splice(i,1);
-  }
-  requestAnimationFrame(updateCursorTrail);
-}
-updateCursorTrail();
-window.addEventListener('mousemove', (e) => {
-  trail.push({ x:e.clientX + (Math.random()-0.5)*4, y:e.clientY + (Math.random()-0.5)*4, vx:(Math.random()-0.5)*0.4, vy:(Math.random()-0.5)*0.4, r: Math.random()*4 + 1.2, life: 46 });
-  if(trail.length>120) trail.splice(0, trail.length-100);
-});
-
-/* ============================
-    GSAP / Scroll-triggered fades & reveals
-    ============================ */
-gsap.registerPlugin(ScrollTrigger);
-gsap.to(".bg-designs", { opacity:0, filter:"blur(8px) brightness(0.18)", ease:"none",
-  scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 } });
-gsap.to(".gradient-overlay", { opacity:0.18, scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 }});
-gsap.to(".hero-inner", { opacity:0.18, y:-40, ease:"power1.out", scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.8 }});
-document.querySelectorAll('.section').forEach(sec => {
-  gsap.from(sec, { y:18, opacity:0, duration:0.9, ease:"power2.out", scrollTrigger:{ trigger:sec, start:"top 85%", toggleActions:"play none none none" }});
-});
-ScrollTrigger.create({
-  trigger: "#gallery",
-  start: "top 88%",
-  onEnter: () => gallery.classList.add('visible'),
-  once: true
-});
-
-/* ============================
-    Button smooth scrolls & magnetic effect
-    ============================ */
-const btnDetails = document.getElementById('btnDetails');
-const btnWork = document.getElementById('btnWork');
-btnDetails.addEventListener('click', ()=> document.getElementById('aboutSection').scrollIntoView({behavior:'smooth', block:'start'}));
-btnWork.addEventListener('click', ()=> document.getElementById('gallerySection').scrollIntoView({behavior:'smooth', block:'start'}));
-
-document.querySelectorAll('.btn').forEach(btn => {
-  btn.addEventListener('mousemove', (e) => {
-    const rect = btn.getBoundingClientRect();
-    const dx = e.clientX - (rect.left + rect.width/2);
-    const dy = e.clientY - (rect.top + rect.height/2);
-    btn.style.transform = `translate(${dx*0.2}px, ${dy*0.35}px)`;
-  });
-  btn.addEventListener('mouseleave', ()=> { btn.style.transform = `translate(0,0)`; });
-});
-
-
-/* ===================================================
-   [FIXED] Ambient audio with permission modal logic
-   =================================================== */
+    AUDIO & SOUND FEEDBACK
+============================ */
 const audioModal = document.getElementById('audioModal');
 const enableAudioBtn = document.getElementById('enableAudioBtn');
 const disableAudioBtn = document.getElementById('disableAudioBtn');
-const audioToggle = document.getElementById('audioToggle');
-const ambient = document.getElementById('ambientAudio');
-let audioContext;
-let isAudioInitialized = false;
+const audioToggleBtn = document.getElementById('audioToggleBtn');
+const ambientAudio = document.getElementById('ambientAudio');
+let audioEnabled = false;
+
+function playClickSound() { if(audioEnabled) { clickSound.currentTime=0; clickSound.play(); } }
+document.querySelectorAll('a, button').forEach(el => el.addEventListener('click', playClickSound));
 
 function playAudio() {
-  if (ambient.paused) {
-    // AudioContext must be created after a user gesture (like a click)
-    if (!isAudioInitialized) {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const source = audioContext.createMediaElementSource(ambient);
-      source.connect(audioContext.destination);
-      isAudioInitialized = true;
-    }
-    
-    // Set a valid volume level (0.0 to 1.0)
-    ambient.volume = 0.4;
-    
-    // Play the audio
-    ambient.play().catch(e => console.error("Audio play failed:", e));
-    
-    // Update the button icon to show the 'muted' state
-    audioToggle.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
+  if (ambientAudio.paused && audioEnabled) {
+    ambientAudio.play().catch(e => console.error("Audio play failed:", e));
+    audioToggleBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
   }
 }
-
 function pauseAudio() {
-  if (!ambient.paused) {
-    ambient.pause();
-    // Update the button icon to show the 'unmuted' state
-    audioToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+  if (!ambientAudio.paused) {
+    ambientAudio.pause();
+    audioToggleBtn.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
   }
 }
+function initAudio() {
+    if(audioEnabled) return;
+    ambientAudio.volume = 0.2;
+    audioEnabled = true;
+    playAudio();
+    audioModal.classList.remove('visible');
+    localStorage.setItem('audioConsent', 'enabled');
+}
 
-// Show the permission modal as soon as the page loads
-audioModal.classList.add('visible');
-
-// Event listener for the "Yes" button in the modal
-enableAudioBtn.addEventListener('click', () => {
-  playAudio();
-  audioModal.classList.remove('visible');
+audioToggleBtn.addEventListener('click', () => {
+    if (!audioEnabled) initAudio();
+    else if (ambientAudio.paused) playAudio();
+    else pauseAudio();
 });
-
-// Event listener for the "No" button in the modal
+enableAudioBtn.addEventListener('click', initAudio);
 disableAudioBtn.addEventListener('click', () => {
   audioModal.classList.remove('visible');
+  localStorage.setItem('audioConsent', 'disabled');
 });
 
-// Event listener for the toggle button in the hero section
-audioToggle.addEventListener('click', () => {
-  if (ambient.paused) {
-    playAudio(); // If paused, play it
-  } else {
-    pauseAudio(); // If playing, pause it
-  }
+const audioConsent = localStorage.getItem('audioConsent');
+if (audioConsent === 'enabled') {
+  audioEnabled = true;
+  playAudio();
+} else if (audioConsent !== 'disabled') {
+  audioModal.classList.add('visible');
+}
+
+/* ============================
+    BACKGROUND FLOATING IMAGES
+============================ */
+const bgContainer = document.getElementById('bgDesigns');
+const floatingImages = [];
+
+function createFloatingImage(file) {
+    const img = document.createElement('img');
+    img.src = file;
+    img.alt = 'background design thumbnail';
+    img.onerror = () => img.remove();
+    
+    const size = Math.random() * 60 + 80;
+    const x = Math.random() * window.innerWidth;
+    const y = Math.random() * window.innerHeight;
+    const vx = (Math.random() - 0.5) * 0.2;
+    const vy = (Math.random() - 0.5) * 0.2;
+
+    img.style.width = `${size}px`; img.style.height = `${size}px`;
+    
+    floatingImages.push({ el: img, x, y, vx, vy, life: 1, maxLife: Math.random() * 200 + 300 });
+    bgContainer.appendChild(img);
+}
+
+IMAGE_FILES.slice(0, 15).forEach(item => createFloatingImage(item.file));
+
+function updateFloatingImages() {
+    floatingImages.forEach(imgObj => {
+        imgObj.x += imgObj.vx; imgObj.y += imgObj.vy;
+        if (imgObj.x < -150 || imgObj.x > window.innerWidth + 150) imgObj.vx *= -1;
+        if (imgObj.y < -150 || imgObj.y > window.innerHeight + 150) imgObj.vy *= -1;
+        imgObj.life++;
+        imgObj.el.style.opacity = Math.sin((imgObj.life / imgObj.maxLife) * Math.PI) * 0.3;
+        imgObj.el.style.transform = `translate(${imgObj.x}px, ${imgObj.y}px)`;
+    });
+    requestAnimationFrame(updateFloatingImages);
+}
+requestAnimationFrame(updateFloatingImages);
+
+/* ============================
+    GALLERY & FILTERING
+============================ */
+const gallery = document.getElementById('gallery');
+const galleryFilters = document.getElementById('galleryFilters');
+let likes = JSON.parse(localStorage.getItem('portfolioLikes')) || {};
+
+IMAGE_FILES.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'gallery-card';
+    card.dataset.id = item.file;
+    card.dataset.category = item.category;
+
+    card.innerHTML = `
+        <img src="${item.file}" loading="lazy" alt="Portfolio design piece">
+        <div class="card-info-overlay">
+            <h3>${item.category.charAt(0).toUpperCase() + item.category.slice(1)} Project</h3>
+            <p>Tools: Photoshop, Figma</p>
+        </div>
+    `;
+    gallery.appendChild(card);
+});
+
+galleryFilters.addEventListener('click', e => {
+    if(e.target.tagName !== 'BUTTON') return;
+    const filter = e.target.dataset.filter;
+
+    // Update active button
+    galleryFilters.querySelector('.active').classList.remove('active');
+    e.target.classList.add('active');
+
+    // Filter cards
+    document.querySelectorAll('.gallery-card').forEach(card => {
+        if(filter === 'all' || card.dataset.category === filter) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
 });
 
 /* ============================
-    Initial polish: set ARIA and keyboard focus
-    ============================ */
-btnDetails.setAttribute('aria-label','View details - scroll to About section');
-btnWork.setAttribute('aria-label','View work - scroll to Gallery section');
-btnDetails.tabIndex=0; btnWork.tabIndex=0;
+    TYPING EFFECTS
+============================ */
+// Code Intro
+const codeIntroEl = document.getElementById('codeIntro');
+const introText = "> Hello, Thanks for Visiting! You`re AWESOME...";
+let introCharIdx = 0;
+function typeIntro() {
+    if (!codeIntroEl || introCharIdx > introText.length) return;
+    codeIntroEl.textContent = introText.slice(0, introCharIdx) + (introCharIdx % 2 ? '_' : '');
+    introCharIdx++;
+    setTimeout(typeIntro, 100);
+}
+typeIntro();
+
+// Role Ticker
+let roleIdx = 0, charIdx = 0; const ticker = document.getElementById('roleTicker');
+function typeRole(){
+  if(!ticker) return;
+  const curr = ROLES[roleIdx];
+  charIdx++;
+  ticker.textContent = curr.slice(0,charIdx) + (charIdx % 2 ? '|' : '');
+  if(charIdx >= curr.length + 6){
+    setTimeout(()=>{ charIdx = 0; roleIdx = (roleIdx+1)%ROLES.length; setTimeout(typeRole,120); }, 1000);
+  } else setTimeout(typeRole,80);
+}
+setTimeout(typeRole, introText.length * 100 + 500); // Start after intro
+
+/* ============================
+    AI CHAT WIDGET
+============================ */
+const chatBubble = document.getElementById('chatBubble');
+const aiChatWidget = document.getElementById('aiChatWidget');
+const closeChatBtn = document.getElementById('closeChatBtn');
+const userQuestions = document.getElementById('userQuestions');
+const aiChatBody = document.getElementById('aiChatBody');
+
+const responses = {
+    tools: "I primarily use the Adobe Creative Suite (Photoshop, Premiere Pro, After Effects), Figma for UI/UX, and various AI tools like Midjourney and Google AI Studio for ideation and asset creation.",
+    experience: "I have several years of experience in graphic design, motion graphics, and branding, working with clients like eSoft and Print Vision, and creating design courses for enterprise development.",
+    contact: "The best way to reach me is via the social links at the bottom of the page or by emailing me at example@email.com."
+};
+
+chatBubble.addEventListener('click', () => aiChatWidget.classList.add('open'));
+closeChatBtn.addEventListener('click', () => aiChatWidget.classList.remove('open'));
+userQuestions.addEventListener('click', e => {
+    if(e.target.tagName !== 'BUTTON') return;
+    const questionKey = e.target.dataset.question;
+    const response = responses[questionKey];
+    
+    const userMsg = document.createElement('div');
+    userMsg.className = 'ai-message user';
+    userMsg.innerHTML = `<p>${e.target.textContent}</p>`;
+    
+    const botMsg = document.createElement('div');
+    botMsg.className = 'ai-message bot';
+    botMsg.innerHTML = `<p>${response}</p>`;
+
+    aiChatBody.appendChild(botMsg);
+    aiChatBody.scrollTop = aiChatBody.scrollHeight;
+});
+
+
+/* ============================
+    CANVAS PARTICLE EFFECTS
+============================ */
+const bgCanvas = document.getElementById('bgParticles');
+const cursorCanvas = document.getElementById('cursorTrail');
+const bgCtx = bgCanvas.getContext('2d');
+const cursorCtx = cursorCanvas.getContext('2d');
+let mouse = {x:-9999,y:-9999};
+
+const resizeCanvases = () => {
+  [bgCanvas,cursorCanvas].forEach(c=>{ if(c) { c.width = innerWidth; c.height = innerHeight; } });
+};
+resizeCanvases();
+window.addEventListener('resize', resizeCanvases);
+window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+
+let bgParticles = [];
+const BG_COUNT = Math.floor(innerWidth / 25);
+for(let i=0;i<BG_COUNT;i++){
+  bgParticles.push({ x:Math.random()*innerWidth, y:Math.random()*innerHeight, r:Math.random()*1.5+0.5,
+    vx:(Math.random()-0.5)*0.2, vy:(Math.random()-0.5)*0.2 });
+}
+let trail = [];
+
+function animateParticles(){
+    bgCtx.clearRect(0,0,innerWidth,innerHeight);
+    cursorCtx.clearRect(0,0,innerWidth,innerHeight);
+
+    bgParticles.forEach((p1, i) => {
+        p1.x += p1.vx; p1.y += p1.vy;
+        if(p1.x<0)p1.x=innerWidth; if(p1.x>innerWidth)p1.x=0; if(p1.y<0)p1.y=innerHeight; if(p1.y>innerHeight)p1.y=0;
+        
+        // Repulsion from mouse
+        const dxMouse = p1.x - mouse.x, dyMouse = p1.y - mouse.y; const dMouse = Math.hypot(dxMouse,dyMouse);
+        if(dMouse < 120){ const push = (1 - dMouse/120) * 0.5; p1.x += (dxMouse/dMouse||0)*push*3; p1.y += (dyMouse/dMouse||0)*push*3; }
+        
+        bgCtx.beginPath();
+        bgCtx.fillStyle = `rgba(255,42,42,0.6)`;
+        bgCtx.arc(p1.x,p1.y,p1.r,0,Math.PI*2); bgCtx.fill();
+        
+        // Connecting lines
+        for(let j = i + 1; j < bgParticles.length; j++){
+            const p2 = bgParticles[j];
+            const dx = p1.x - p2.x, dy = p1.y - p2.y; const d = Math.hypot(dx,dy);
+            if(d < 100){
+                bgCtx.beginPath();
+                bgCtx.moveTo(p1.x, p1.y);
+                bgCtx.lineTo(p2.x, p2.y);
+                bgCtx.strokeStyle = `rgba(255,42,42,${1 - d/100})`;
+                bgCtx.lineWidth = 0.5;
+                bgCtx.stroke();
+            }
+        }
+    });
+    
+    trail.push({ x:mouse.x, y:mouse.y, life: 30, r: 3 });
+    if(trail.length > 25) trail.shift();
+    for(let i=trail.length-1;i>=0;i--){
+        const t = trail[i]; t.life--;
+        const alpha = Math.max(0, t.life / 30);
+        const radius = Math.max(0, t.r * (t.life / 30));
+        cursorCtx.fillStyle = `rgba(255, 42, 42, ${alpha * 0.5})`;
+        cursorCtx.beginPath(); cursorCtx.arc(t.x,t.y,radius,0,Math.PI*2); cursorCtx.fill();
+        if(t.life<=0) trail.splice(i,1);
+    }
+
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+/* ============================
+    GSAP SCROLL TRIGGERS
+============================ */
+gsap.registerPlugin(ScrollTrigger);
+gsap.to(".hero-inner", { opacity:0.1, y:-60, ease:"power1.out", scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.8 }});
+gsap.to(".bg-designs", { opacity: 0, ease:"none", scrollTrigger:{ trigger:".hero", start:"top top", end:"bottom top", scrub:0.6 } });
+
+document.querySelectorAll('.section').forEach(sec => {
+  gsap.from(sec, { y:50, opacity:0, duration:1, ease:"power2.out", scrollTrigger:{ trigger:sec, start:"top 85%", toggleActions:"play none none none" }});
+});
+
+ScrollTrigger.create({
+    trigger: '#skillsSection',
+    start: 'top 70%',
+    once: true,
+    onEnter: () => {
+        document.querySelectorAll('.skill-progress').forEach(el => {
+            el.style.width = el.dataset.progress + '%';
+        });
+    }
+});
+ScrollTrigger.create({
+    trigger: '.final-cta',
+    start: 'top 80%',
+    once: true,
+    onEnter: (self) => self.trigger.classList.add('visible')
+});
 
 });
 </script>
