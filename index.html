@@ -247,7 +247,7 @@ footer { text-align: center; padding: 20px; font-size: 0.9rem; color: var(--mute
   .nav-right-group { gap: 15px; }
   .profile-pic, .profile-pic-glow { width:140px;height:140px }
   .hero{ padding: 80px 14px; }
-  .gallery { column-count: 2; }
+  .gallery { column-count: 3; } /* MODIFIED: Set to 3 columns for mobile */
   .section h2 { font-size: 1.8rem; }
   .ai-chat-widget { width: calc(100vw - 40px); }
 }
@@ -255,7 +255,7 @@ footer { text-align: center; padding: 20px; font-size: 0.9rem; color: var(--mute
   .main-name{ font-size:1.8rem }
   .bio{ font-size:0.88rem }
   .hero-inner{ gap:8px }
-  .gallery { column-count: 1; }
+  .gallery { column-count: 3; } /* MODIFIED: Set to 3 columns for small mobile */
   .navbar { padding: 15px; }
   .navbar.scrolled { padding: 10px 15px; }
 }
@@ -597,14 +597,44 @@ function createFloatingImage(file) {
 
 IMAGE_FILES.slice(0, 15).forEach(item => createFloatingImage(item.file));
 
+// MODIFIED: Replaced function with a version that includes collision avoidance logic.
 function updateFloatingImages() {
-    floatingImages.forEach(imgObj => {
-        imgObj.x += imgObj.vx; imgObj.y += imgObj.vy;
-        if (imgObj.x < -150 || imgObj.x > window.innerWidth + 150) imgObj.vx *= -1;
-        if (imgObj.y < -150 || imgObj.y > window.innerHeight + 150) imgObj.vy *= -1;
-        imgObj.life++;
-        imgObj.el.style.opacity = Math.sin((imgObj.life / imgObj.maxLife) * Math.PI) * 0.3;
-        imgObj.el.style.transform = `translate(${imgObj.x}px, ${imgObj.y}px)`;
+    floatingImages.forEach((p1, i) => {
+        // Apply a small force to avoid overlaps
+        for (let j = i + 1; j < floatingImages.length; j++) {
+            const p2 = floatingImages[j];
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            const dist = Math.hypot(dx, dy);
+            // Use image size for collision radius, with a small buffer
+            const min_dist = (parseFloat(p1.el.style.width) / 2) + (parseFloat(p2.el.style.width) / 2) + 20;
+
+            if (dist < min_dist) {
+                const angle = Math.atan2(dy, dx);
+                // Calculate how much they should move apart
+                const targetX = p1.x + Math.cos(angle) * min_dist;
+                const targetY = p1.y + Math.sin(angle) * min_dist;
+                // Apply a gentle "spring" force to push them apart
+                const ax = (targetX - p2.x) * 0.005; 
+                const ay = (targetY - p2.y) * 0.005;
+                p1.vx -= ax;
+                p1.vy -= ay;
+                p2.vx += ax;
+                p2.vy += ay;
+            }
+        }
+
+        // Update position
+        p1.x += p1.vx;
+        p1.y += p1.vy;
+        
+        // Wall collision
+        if (p1.x < -150 || p1.x > window.innerWidth + 150) p1.vx *= -1;
+        if (p1.y < -150 || p1.y > window.innerHeight + 150) p1.vy *= -1;
+        
+        p1.life++;
+        p1.el.style.opacity = Math.sin((p1.life / p1.maxLife) * Math.PI) * 0.3;
+        p1.el.style.transform = `translate(${p1.x}px, ${p1.y}px)`;
     });
     requestAnimationFrame(updateFloatingImages);
 }
